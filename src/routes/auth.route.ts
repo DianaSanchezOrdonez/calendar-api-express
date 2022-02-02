@@ -1,13 +1,10 @@
 import { Router } from 'express'
-import {
-  getAuthCode,
-  googleAuth,
-} from '../controllers/auth.controller'
-import asyncHandler from 'express-async-handler'
+import AsyncRouter from 'express-promise-router'
+import { getAuthCode, googleAuth } from '../controllers/auth.controller'
 
-const router: Router = Router()
+const router: Router = AsyncRouter()
 
-router.route('/').get(asyncHandler(googleAuth))
-router.route('/google/callback').get(asyncHandler(getAuthCode))
+router.route('/').get(googleAuth)
+router.route('/google/callback').get(getAuthCode)
 
 export { router }

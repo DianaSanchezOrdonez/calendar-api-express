@@ -1,15 +1,15 @@
 import { Router } from 'express'
+import AsyncRouter from 'express-promise-router'
 import {
   createNewEvent,
   getListEventsByUser,
 } from '../controllers/events.controller'
-import asyncHandler from 'express-async-handler'
 
-const router: Router = Router()
+const router: Router = AsyncRouter()
 
-router.route('/').post(asyncHandler(createNewEvent))
+router.route('/').post(createNewEvent)
 
-router.route('/:userId').get(asyncHandler(getListEventsByUser))
+router.route('/:userId').get(getListEventsByUser)
 
 // router
 //   .route('/:commentId')

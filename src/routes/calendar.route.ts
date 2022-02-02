@@ -1,14 +1,14 @@
 import { Router } from 'express'
+import AsyncRouter from 'express-promise-router'
 import {
   getUserCalendar,
   getShareableLink,
 } from '../controllers/calendar.controller'
-import asyncHandler from 'express-async-handler'
 
-const router: Router = Router()
+const router: Router = AsyncRouter()
 
-router.route('/').post(asyncHandler(getUserCalendar))
-router.route('/:calendarId').post(asyncHandler(getShareableLink))
+router.route('/').post(getUserCalendar)
+router.route('/:calendarId').post(getShareableLink)
 
 // router
 //   .route('/:commentId')

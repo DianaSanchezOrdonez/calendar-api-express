@@ -28,6 +28,7 @@ export const refreshToken = async (code: string): Promise<void> => {
 const job = new CronJob(
   '0 */30 * * * *',
   async () => {
+    console.log('REFRESH_TOKEN env', process.env.REFRESH_TOKEN)
     try {
       const { data } = await axios.post('https://oauth2.googleapis.com/token', {
         client_id: googleConfig.clientId,
