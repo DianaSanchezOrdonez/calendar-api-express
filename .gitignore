@@ -1,0 +1,15 @@
+# compiled output
+node_modules
+dist
+
+# Keep environment variables out of version control
+.env
+
+# OS
+.DS_Store
+
+# Tests
+/coverage
+/.nyc_output
+
+yarn-error.log
