@@ -4,6 +4,8 @@ import morgan from 'morgan'
 import { router as eventRouter } from './routes/events.route'
 import { router as authRouter } from './routes/auth.route'
 import { router as calendarRouter } from './routes/calendar.route'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerDoc } from './swagger'
 
 const app: Application = express()
 
@@ -29,5 +31,7 @@ app.use('/calendar', calendarRouter)
 app.use('/event', eventRouter)
 
 app.use(errorHandler)
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc))
 
 export { app }
