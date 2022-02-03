@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "schelude meeting with interviewers",
   "main": "app.js",
+  "engines": {
+    "node": "12.11.1"
+  },
   "author": "Diana Ordonez",
   "license": "MIT",
   "devDependencies": {
