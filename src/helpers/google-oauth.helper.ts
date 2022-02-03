@@ -1,10 +1,7 @@
 import { google } from 'googleapis'
-import { validateCredentials } from 'parse-google-env-credentials'
-
-const keys = validateCredentials()
 
 export const googleConfig = {
-  clientId: keys.client_id,
+  clientId: process.env.OAUTH_CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
   redirect: process.env.REDIRECT_URL,
 }
