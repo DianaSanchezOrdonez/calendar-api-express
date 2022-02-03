@@ -28,6 +28,7 @@
     "concurrently": "^7.0.0",
     "cron": "^1.8.2",
     "dotenv-cli": "^4.1.1",
+    "express": "^4.17.2",
     "express-promise-router": "^4.1.1",
     "googleapis": "^92.0.0",
     "morgan": "^1.10.0",
@@ -41,6 +42,6 @@
   "scripts": {
     "dev": "dotenv -e .env concurrently \"tsc -w\" \"nodemon dist/app.js\"",
     "start": "node dist/app.js",
-    "build": "tsc -p ." 
+    "build": "tsc -p ."
   }
 }
