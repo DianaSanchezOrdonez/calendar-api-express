@@ -41,7 +41,6 @@
   "scripts": {
     "dev": "dotenv -e .env concurrently \"tsc -w\" \"nodemon dist/app.js\"",
     "start": "node dist/app.js",
-    "build": "tsc -p .",
-    "deploy": "git add . && git commit -m 'Heroku' && git push heroku master"
+    "build": "tsc -p ." 
   }
 }
