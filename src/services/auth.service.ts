@@ -21,7 +21,7 @@ export const generateAuthUrl = async (): Promise<string> => {
 // https://developers.google.com/identity/protocols/oauth2/web-server#incrementalAuth
 export const refreshToken = async (code: string): Promise<void> => {
   const { tokens } = await oauth2Client.getToken(code)
-
+  console.log('tokens', tokens)
   return oauth2Client.setCredentials(tokens)
 }
 
