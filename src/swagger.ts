@@ -12,6 +12,8 @@ export const swaggerDoc = {
       url: 'https://opensource.org/licenses/MIT',
     },
   },
+  host: 'localhost:3000',
+  basePath: '/',
   paths: {
     '/auth': {
       get: getAuth,

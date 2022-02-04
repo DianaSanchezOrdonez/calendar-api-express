@@ -16,6 +16,11 @@ export const getEvent = {
   responses: {
     '200': {
       description: "A list of user's events",
+      headers: {
+        'Access-Control-Allow-Origin': {
+          type: 'string',
+        },
+      },
     },
   },
 }
@@ -62,6 +67,11 @@ export const postEvent = {
   responses: {
     '200': {
       description: 'Event created',
+      headers: {
+        'Access-Control-Allow-Origin': {
+          type: 'string',
+        },
+      },
     },
   },
 }

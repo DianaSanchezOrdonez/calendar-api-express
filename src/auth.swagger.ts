@@ -4,8 +4,12 @@ export const getAuth = {
   operationId: 'getEvent',
   responses: {
     '200': {
-      description: "Authentication URL",
+      description: 'Authentication URL',
+      headers: {
+        'Access-Control-Allow-Origin': {
+          type: 'string',
+        },
+      },
     },
   },
 }
-
