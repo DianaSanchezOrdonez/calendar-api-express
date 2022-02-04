@@ -12,7 +12,7 @@ export const swaggerDoc = {
       url: 'https://opensource.org/licenses/MIT',
     },
   },
-  host: 'localhost:3000',
+  host: process.env.NODE_ENV === 'development' ? 'localhost:3000' : 'calendar-api-express.herokuapp.com',
   basePath: '/',
   paths: {
     '/auth': {
