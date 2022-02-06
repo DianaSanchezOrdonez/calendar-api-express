@@ -4,14 +4,17 @@ import { defaultScope } from '../helpers/google-jwt.helper'
 import { googleConfig, oauth2Client } from '../helpers/google-oauth.helper'
 import { CustomError } from '../helpers/handler-error'
 
+const convertArrayScopeToString = (scope: Array<string>): string => {
+  const stringScope = scope.toString().replace(',', '+')
+
+  return stringScope
+}
+
 export const generateAuthUrl = async (): Promise<string> => {
   try {
-    const authorizeUrl = oauth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: defaultScope,
-    })
+    const stringScope = convertArrayScopeToString(defaultScope)
 
-    return authorizeUrl
+    return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.OAUTH_CLIENT_ID}&response_type=code&scope=${stringScope}&redirect_uri=${process.env.REDIRECT_URL}&prompt=consent&include_granted_scopes=true&access_type=offline`
   } catch (e: any) {
     console.error('generateAuthUrl error: ', e)
     throw new CustomError(e.message, 422)
@@ -26,7 +29,7 @@ export const refreshToken = async (code: string): Promise<void> => {
 }
 
 const job = new CronJob(
-  '0 */30 * * * *',
+  '0 */45 * * * *',
   async () => {
     try {
       const { data } = await axios.post('https://oauth2.googleapis.com/token', {

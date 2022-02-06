@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import { plainToClass } from 'class-transformer'
 import { addMonths } from 'date-fns'
 import { google } from 'googleapis'
@@ -18,6 +19,7 @@ const calendarOuthAuth = google.calendar({
 export const getListUserEvents = async (
   input: EventsByUserDto
 ): Promise<EventsByUserResponseDto> => {
+  // export const getListUserEvents = async (input: EventsByUserDto) => {
   await input.isValid()
   const startDatetime = new Date()
   const endDatetime = addMonths(startDatetime, 1)
@@ -27,7 +29,7 @@ export const getListUserEvents = async (
       calendarId: input.userId,
       timeMin: startDatetime.toISOString(),
       timeMax: endDatetime.toISOString(),
-      timeZone: 'UTC',
+      timeZone: 'UTC+00',
     })
 
     return plainToClass(EventsByUserResponseDto, events)
