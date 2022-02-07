@@ -9,6 +9,7 @@ declare global {
       OAUTH_CLIENT_ID: string
       CLIENT_SECRET: string
       REDIRECT_URL: string
+      CRYPTO_KEY: string
     }
   }
 }

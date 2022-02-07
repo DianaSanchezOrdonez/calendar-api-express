@@ -3,10 +3,14 @@ import { CronJob } from 'cron'
 import { defaultScope } from '../helpers/google-jwt.helper'
 import { googleConfig, oauth2Client } from '../helpers/google-oauth.helper'
 import { CustomError } from '../helpers/handler-error'
+import { AES, enc } from 'crypto-js'
+import { DecodeDataResponse } from '../dtos/responses/decode-data.dto'
+import { plainToClass } from 'class-transformer'
+import { EncodeDataDto } from '../dtos/requests/endode-data.dto'
 
 const convertArrayScopeToString = (scope: Array<string>): string => {
   const stringScope = scope.toString().replace(/[,]/g, '+')
-  console.log('stringScope', stringScope)
+
   return stringScope
 }
 
@@ -24,7 +28,7 @@ export const generateAuthUrl = async (): Promise<string> => {
 // https://developers.google.com/identity/protocols/oauth2/web-server#incrementalAuth
 export const refreshToken = async (code: string): Promise<void> => {
   const { tokens } = await oauth2Client.getToken(code)
-  console.log('tokens', tokens)
+
   return oauth2Client.setCredentials(tokens)
 }
 
@@ -51,6 +55,37 @@ const job = new CronJob(
   'UTC'
 )
 job.start()
+
+export const encodeEventData = async (
+  input: EncodeDataDto
+): Promise<string> => {
+  await input.isValid()
+  const hash = AES.encrypt(
+    JSON.stringify({
+      email: input.email,
+      event: input.event,
+      duration: input.duration,
+    }),
+    process.env.CRYPTO_KEY
+  ).toString()
+
+  if (!hash.includes('+')) {
+    console.log(hash)
+  }
+
+  return hash
+}
+
+export const decodeEventData = (hash: string): DecodeDataResponse => {
+  try {
+    const data = AES.decrypt(hash, process.env.CRYPTO_KEY).toString(enc.Utf8)
+
+    return plainToClass(DecodeDataResponse, JSON.parse(data))
+  } catch (e: any) {
+    console.error('decodeEventData error: ', e)
+    throw new CustomError(e, 400)
+  }
+}
 
 // https://console.cloud.google.com/apis/credentials/oauthclient/30493417252-ajuf1j1kn1rt0c9jcoqrbj39pgu2rhng.apps.googleusercontent.com?orgonly=true&project=nestjsnbblapi&supportedpurview=organizationId
 // https://developers.google.com/oauthplayground/

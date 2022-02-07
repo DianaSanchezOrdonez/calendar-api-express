@@ -27,6 +27,50 @@ export const swaggerDoc = {
         },
       },
     },
+    '/auth/encode': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Encode claimer and event data',
+        operationId: 'postEncode',
+        parameters: [
+          {
+            name: 'Encode',
+            in: 'body',
+            description:
+              'body of event and claimer info that need to be encoded',
+            required: true,
+            schema: { $ref: '#/definitions/Encode' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Hash',
+          },
+        },
+      },
+    },
+    '/auth/decode': {
+      get: {
+        tags: ['Auth'],
+        summary: 'Decode hash',
+        operationId: 'getDecode',
+        parameters: [
+          {
+            name: 'hash',
+            in: 'query',
+            description: 'Decode data by hash',
+            required: true,
+            type: 'string',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Hash',
+            schema: { $ref: '#/definitions/Encode' },
+          },
+        },
+      },
+    },
     '/event': {
       post: {
         tags: ['Events'],
@@ -76,6 +120,21 @@ export const swaggerDoc = {
   consumes: ['application/json'],
   produces: ['application/xml', 'application/json'],
   definitions: {
+    Encode: {
+      type: 'object',
+      required: ['email', 'event', 'duration'],
+      properties: {
+        claimerEmail: {
+          type: 'string',
+        },
+        eventName: {
+          type: 'string',
+        },
+        duration: {
+          type: 'string',
+        },
+      },
+    },
     Event: {
       type: 'object',
       required: [
@@ -103,9 +162,6 @@ export const swaggerDoc = {
           type: 'string',
           format: 'date-time',
         },
-      },
-      xml: {
-        name: 'Event',
       },
     },
   },

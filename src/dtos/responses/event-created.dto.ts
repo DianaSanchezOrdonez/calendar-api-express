@@ -12,10 +12,6 @@ export class EventCreatedDataDto {
   @Expose()
   readonly summary: string
   @Expose()
-  readonly creator: {
-    email: 'diana@ravn.co'
-  }
-  @Expose()
   readonly start: DateAndTimeZoneDto
   @Expose()
   readonly end: DateAndTimeZoneDto
