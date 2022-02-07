@@ -5,8 +5,8 @@ import { googleConfig, oauth2Client } from '../helpers/google-oauth.helper'
 import { CustomError } from '../helpers/handler-error'
 
 const convertArrayScopeToString = (scope: Array<string>): string => {
-  const stringScope = scope.toString().replace(',', '+')
-
+  const stringScope = scope.toString().replace(/[,]/g, '+')
+  console.log('stringScope', stringScope)
   return stringScope
 }
 
@@ -44,7 +44,7 @@ const job = new CronJob(
       throw new CustomError(e.message, 422)
     }
 
-    console.log('You will see this message every 30 min')
+    console.log('You will see this message every 45 min')
   },
   null,
   true,

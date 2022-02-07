@@ -19,7 +19,6 @@ const calendarOuthAuth = google.calendar({
 export const getListUserEvents = async (
   input: EventsByUserDto
 ): Promise<EventsByUserResponseDto> => {
-  // export const getListUserEvents = async (input: EventsByUserDto) => {
   await input.isValid()
   const startDatetime = new Date()
   const endDatetime = addMonths(startDatetime, 1)
@@ -29,6 +28,8 @@ export const getListUserEvents = async (
       calendarId: input.userId,
       timeMin: startDatetime.toISOString(),
       timeMax: endDatetime.toISOString(),
+      orderBy: 'startTime',
+      singleEvents: true,
       timeZone: 'UTC+00',
     })
 

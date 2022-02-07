@@ -19,12 +19,6 @@ export class EventItemsDto {
 @Exclude()
 class EventDataDto {
   @Expose()
-  readonly kind: 'calendar#events'
-  @Expose()
-  readonly updated: Date
-  @Expose()
-  readonly timeZone: string
-  @Expose()
   @Type(() => EventItemsDto)
   readonly items: EventItemsDto[]
 }
