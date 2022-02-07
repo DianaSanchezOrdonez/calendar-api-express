@@ -34,7 +34,7 @@ export const swaggerDoc = {
         operationId: 'postEncode',
         parameters: [
           {
-            name: 'Encode',
+            name: 'body',
             in: 'body',
             description:
               'body of event and claimer info that need to be encoded',
@@ -78,16 +78,45 @@ export const swaggerDoc = {
         operationId: 'postEvent',
         parameters: [
           {
-            name: 'Event',
+            name: 'body',
             in: 'body',
             description: 'body of event that needs to be created',
             required: true,
-            schema: { $ref: '#/definitions/Event' },
+            schema: {
+              type: 'object',
+              required: [
+                'calendarId',
+                'summary',
+                'candidateEmail',
+                'startDatetime',
+                'endDatetime',
+              ],
+              properties: {
+                calendarId: {
+                  type: 'string',
+                },
+                summary: {
+                  type: 'string',
+                },
+                candidateEmail: {
+                  type: 'string',
+                },
+                startDatetime: {
+                  type: 'string',
+                  format: 'date-time',
+                },
+                endDatetime: {
+                  type: 'string',
+                  format: 'date-time',
+                },
+              },
+            },
           },
         ],
         responses: {
           '200': {
             description: 'Event created',
+            schema: { $ref: '#/definitions/EventCreated' },
           },
         },
       },
@@ -111,6 +140,7 @@ export const swaggerDoc = {
         responses: {
           '200': {
             description: "A list of user's events",
+            schema: { $ref: '#/definitions/Events' },
           },
         },
       },
@@ -135,32 +165,89 @@ export const swaggerDoc = {
         },
       },
     },
+    Events: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            items: {
+              type: 'array',
+              items: { $ref: '#/definitions/Event' },
+            },
+          },
+        },
+      },
+    },
     Event: {
       type: 'object',
-      required: [
-        'calendarId',
-        'summary',
-        'candidateEmail',
-        'startDatetime',
-        'endDatetime',
-      ],
       properties: {
-        calendarId: {
-          type: 'string',
+        start: {
+          type: 'object',
+          properties: {
+            dateTime: {
+              type: 'string',
+              format: 'date-time',
+            },
+            timeZone: {
+              type: 'string',
+            },
+          },
         },
-        summary: {
-          type: 'string',
+        end: {
+          type: 'object',
+          properties: {
+            dateTime: {
+              type: 'string',
+              format: 'date-time',
+            },
+            timeZone: {
+              type: 'string',
+            },
+          },
         },
-        candidateEmail: {
-          type: 'string',
-        },
-        startDatetime: {
-          type: 'string',
-          format: 'date-time',
-        },
-        endDatetime: {
-          type: 'string',
-          format: 'date-time',
+      },
+    },
+    EventCreated: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+            },
+            summary: {
+              type: 'string',
+            },
+            start: {
+              type: 'object',
+              properties: {
+                dateTime: {
+                  type: 'string',
+                  format: 'date-time',
+                },
+                timeZone: {
+                  type: 'string',
+                },
+              },
+            },
+            end: {
+              type: 'object',
+              properties: {
+                dateTime: {
+                  type: 'string',
+                  format: 'date-time',
+                },
+                timeZone: {
+                  type: 'string',
+                },
+              },
+            },
+            hangoutLink: {
+              type: 'string',
+            },
+          },
         },
       },
     },
