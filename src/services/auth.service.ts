@@ -61,22 +61,24 @@ export const encodeEventData = async (
   input: EncodeDataDto
 ): Promise<string> => {
   await input.isValid()
-  const hash = AES.encrypt(
-    JSON.stringify({
-      claimerEmail: input.claimerEmail,
-      candidateEmail: input.candidateEmail,
-      event: input.event,
-      duration: input.duration,
-    }),
-    process.env.CRYPTO_KEY
-  ).toString()
+  while (true) {
+    const hash = AES.encrypt(
+      JSON.stringify({
+        claimerEmail: input.claimerEmail,
+        candidateEmail: input.candidateEmail,
+        event: input.event,
+        duration: input.duration,
+      }),
+      process.env.CRYPTO_KEY
+    ).toString()
+    if (!hash.includes('+')) {
+      console.log(hash)
 
-  if (!hash.includes('+')) {
-    console.log(hash)
+      break
+    }
+
+    return `${process.env.FRONTEND_LINK}?hash=${hash}`
   }
-
-  // return link
-  return hash
 }
 
 export const decodeEventData = async (

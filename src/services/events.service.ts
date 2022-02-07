@@ -46,7 +46,6 @@ export const insertNewEvent = async (
 ): Promise<EventCreatedDto> => {
   await input.isValid()
   const { calendarId, summary, candidateEmail, startDatetime } = input
-
   const endDatetime = addMinutes(new Date(startDatetime), 45)
 
   try {

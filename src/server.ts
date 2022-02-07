@@ -1,4 +1,11 @@
-import express, { Application, NextFunction, Request, Response } from 'express'
+import express, {
+  json,
+  Application,
+  NextFunction,
+  Request,
+  Response,
+} from 'express'
+import cors from 'cors'
 import { HttpError } from 'http-errors'
 import morgan from 'morgan'
 import { router as eventRouter } from './routes/events.route'
@@ -21,7 +28,8 @@ function errorHandler(
 
 // Middleware
 app.use(morgan('dev'))
-app.use(express.json())
+app.use(cors())
+app.use(json())
 
 // Routes
 app.use('/auth', authRouter)
