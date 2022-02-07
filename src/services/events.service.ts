@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import { plainToClass } from 'class-transformer'
-import { addMonths } from 'date-fns'
+import { addMinutes, addMonths } from 'date-fns'
 import { google } from 'googleapis'
 import { v4 } from 'uuid'
 import { EventsByUserDto } from '../dtos/requests/events-by-user.dto'
@@ -45,8 +45,9 @@ export const insertNewEvent = async (
   input: InsertNewEventDto
 ): Promise<EventCreatedDto> => {
   await input.isValid()
-  const { calendarId, summary, candidateEmail, startDatetime, endDatetime } =
-    input
+  const { calendarId, summary, candidateEmail, startDatetime } = input
+
+  const endDatetime = addMinutes(new Date(startDatetime), 45)
 
   try {
     const newEvent = await calendarOuthAuth.events.insert({
@@ -59,7 +60,7 @@ export const insertNewEvent = async (
           dateTime: startDatetime,
         },
         end: {
-          dateTime: endDatetime,
+          dateTime: endDatetime.toISOString(),
         },
         attendees: [
           {

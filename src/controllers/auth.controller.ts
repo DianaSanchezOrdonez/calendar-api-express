@@ -1,6 +1,7 @@
 import { plainToClass } from 'class-transformer'
 import { Request, Response } from 'express'
 import { EncodeDataDto } from '../dtos/requests/endode-data.dto'
+import { HashDataDto } from '../dtos/requests/hash-data.dto'
 import {
   decodeEventData,
   encodeEventData,
@@ -41,7 +42,8 @@ export const decodeData = async (
   req: Request,
   res: Response
 ): Promise<Response<'json'>> => {
-  const decode = await decodeEventData(req.query.hash as string)
+  const input = plainToClass(HashDataDto, req.body)
+  const decode = await decodeEventData(input)
 
   return res.status(200).json(decode)
 }

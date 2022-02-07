@@ -50,17 +50,24 @@ export const swaggerDoc = {
       },
     },
     '/auth/decode': {
-      get: {
+      post: {
         tags: ['Auth'],
         summary: 'Decode hash',
-        operationId: 'getDecode',
+        operationId: 'postDecode',
         parameters: [
           {
-            name: 'hash',
-            in: 'query',
+            name: 'body',
+            in: 'body',
             description: 'Decode data by hash',
             required: true,
-            type: 'string',
+            schema: {
+              type: 'object',
+              properties: {
+                hash: {
+                  type: 'string',
+                },
+              },
+            },
           },
         ],
         responses: {
@@ -148,16 +155,19 @@ export const swaggerDoc = {
   },
   schemes: ['http', 'https'],
   consumes: ['application/json'],
-  produces: ['application/xml', 'application/json'],
+  produces: ['application/json'],
   definitions: {
     Encode: {
       type: 'object',
-      required: ['email', 'event', 'duration'],
+      required: ['claimerEmail', 'candidateEmail', 'event', 'duration'],
       properties: {
         claimerEmail: {
           type: 'string',
         },
-        eventName: {
+        candidateEmail: {
+          type: 'string',
+        },
+        event: {
           type: 'string',
         },
         duration: {

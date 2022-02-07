@@ -7,6 +7,7 @@ import { AES, enc } from 'crypto-js'
 import { DecodeDataResponse } from '../dtos/responses/decode-data.dto'
 import { plainToClass } from 'class-transformer'
 import { EncodeDataDto } from '../dtos/requests/endode-data.dto'
+import { HashDataDto } from '../dtos/requests/hash-data.dto'
 
 const convertArrayScopeToString = (scope: Array<string>): string => {
   const stringScope = scope.toString().replace(/[,]/g, '+')
@@ -62,7 +63,8 @@ export const encodeEventData = async (
   await input.isValid()
   const hash = AES.encrypt(
     JSON.stringify({
-      email: input.email,
+      claimerEmail: input.claimerEmail,
+      candidateEmail: input.candidateEmail,
       event: input.event,
       duration: input.duration,
     }),
@@ -73,12 +75,18 @@ export const encodeEventData = async (
     console.log(hash)
   }
 
+  // return link
   return hash
 }
 
-export const decodeEventData = (hash: string): DecodeDataResponse => {
+export const decodeEventData = async (
+  input: HashDataDto
+): Promise<DecodeDataResponse> => {
+  await input.isValid()
   try {
-    const data = AES.decrypt(hash, process.env.CRYPTO_KEY).toString(enc.Utf8)
+    const data = AES.decrypt(input.hash, process.env.CRYPTO_KEY).toString(
+      enc.Utf8
+    )
 
     return plainToClass(DecodeDataResponse, JSON.parse(data))
   } catch (e: any) {

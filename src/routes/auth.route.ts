@@ -12,6 +12,6 @@ const router: Router = AsyncRouter()
 router.route('/').get(googleAuth)
 router.route('/google/callback').get(getAuthCode)
 router.route('/encode').post(encodeData)
-router.route('/decode').get(decodeData)
+router.route('/decode').post(decodeData)
 
 export { router }
