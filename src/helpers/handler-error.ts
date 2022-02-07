@@ -1,5 +1,3 @@
-import { AxiosError } from 'axios'
-
 export class CustomError extends Error {
   status: number
 

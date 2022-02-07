@@ -96,7 +96,6 @@ export const swaggerDoc = {
                 'summary',
                 'candidateEmail',
                 'startDatetime',
-                'endDatetime',
               ],
               properties: {
                 calendarId: {
@@ -109,10 +108,6 @@ export const swaggerDoc = {
                   type: 'string',
                 },
                 startDatetime: {
-                  type: 'string',
-                  format: 'date-time',
-                },
-                endDatetime: {
                   type: 'string',
                   format: 'date-time',
                 },
