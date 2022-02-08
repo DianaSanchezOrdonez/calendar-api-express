@@ -8,7 +8,9 @@ import { InsertNewEventDto } from '../dtos/requests/insert-new-event.dto'
 import { EventCreatedDto } from '../dtos/responses/event-created.dto'
 import { EventsByUserResponseDto } from '../dtos/responses/events-by-user.dto'
 import { oauth2Client } from '../helpers/google-oauth.helper'
-import { CustomError } from '../helpers/handler-error'
+import { EventTypeEnum } from '../enums/event-type.enum'
+import { logger } from '../helpers/logger.helper'
+import createError from 'http-errors'
 
 const calendarOuthAuth = google.calendar({
   version: 'v3',
@@ -35,8 +37,11 @@ export const getListUserEvents = async (
 
     return plainToClass(EventsByUserResponseDto, events)
   } catch (e: any) {
-    console.error('getListUserEvents error: ', e)
-    throw new CustomError(e, 422)
+    logger.error(e.message)
+    throw createError(422, {
+      level: 'getListUserEvents',
+      message: e.message,
+    })
   }
 }
 
@@ -45,8 +50,24 @@ export const insertNewEvent = async (
   input: InsertNewEventDto
 ): Promise<EventCreatedDto> => {
   await input.isValid()
-  const { calendarId, summary, candidateEmail, startDatetime } = input
+  const { eventType, claimerEmail, candidateEmail, startDatetime, timeZone } =
+    input
   const endDatetime = addMinutes(new Date(startDatetime), 45)
+  let calendarId: string
+
+  switch (eventType) {
+    case EventTypeEnum.initialInterview:
+      calendarId = process.env.INITIAL_INTERVIEW_ID
+      break
+    case EventTypeEnum.challengeInterview:
+      calendarId = process.env.CHALLENGE_INTERVIEW_ID
+      break
+    case EventTypeEnum.finalInterview:
+      calendarId = process.env.FINAL_INTERVIEW_ID
+      break
+    default:
+      break
+  }
 
   try {
     const newEvent = await calendarOuthAuth.events.insert({
@@ -54,16 +75,21 @@ export const insertNewEvent = async (
       conferenceDataVersion: 1,
       sendUpdates: 'all',
       requestBody: {
-        summary,
+        summary: eventType,
         start: {
           dateTime: startDatetime,
+          timeZone,
         },
         end: {
           dateTime: endDatetime.toISOString(),
+          timeZone,
         },
         attendees: [
           {
             email: candidateEmail,
+          },
+          {
+            email: claimerEmail,
           },
         ],
         conferenceData: {
@@ -79,7 +105,10 @@ export const insertNewEvent = async (
 
     return plainToClass(EventCreatedDto, newEvent)
   } catch (e: any) {
-    console.error('insertNewEvent error: ', e)
-    throw new CustomError(e, 422)
+    logger.error(e.message)
+    throw createError(422, {
+      level: 'insertNewEvent',
+      message: e.message,
+    })
   }
 }

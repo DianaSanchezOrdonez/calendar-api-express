@@ -92,19 +92,29 @@ export const swaggerDoc = {
             schema: {
               type: 'object',
               required: [
-                'calendarId',
-                'summary',
+                'eventType',
+                'timeZone',
                 'candidateEmail',
+                'claimerEmail',
                 'startDatetime',
               ],
               properties: {
-                calendarId: {
+                eventType: {
                   type: 'string',
+                  enum: [
+                    'Initial Interview',
+                    'Challenge Interview',
+                    'Final Interview',
+                  ],
+                  default: 'Initial Interview',
                 },
-                summary: {
+                timeZone: {
                   type: 'string',
                 },
                 candidateEmail: {
+                  type: 'string',
+                },
+                claimerEmail: {
                   type: 'string',
                 },
                 startDatetime: {

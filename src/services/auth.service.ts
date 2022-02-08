@@ -1,13 +1,14 @@
-import axios from 'axios'
 import { CronJob } from 'cron'
 import { defaultScope } from '../helpers/google-jwt.helper'
 import { googleConfig, oauth2Client } from '../helpers/google-oauth.helper'
-import { CustomError } from '../helpers/handler-error'
 import { AES, enc } from 'crypto-js'
 import { DecodeDataResponse } from '../dtos/responses/decode-data.dto'
 import { plainToClass } from 'class-transformer'
 import { EncodeDataDto } from '../dtos/requests/endode-data.dto'
 import { HashDataDto } from '../dtos/requests/hash-data.dto'
+import axios from 'axios'
+import { logger } from '../helpers/logger.helper'
+import createError from 'http-errors'
 
 const convertArrayScopeToString = (scope: Array<string>): string => {
   const stringScope = scope.toString().replace(/[,]/g, '+')
@@ -21,8 +22,11 @@ export const generateAuthUrl = async (): Promise<string> => {
 
     return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.OAUTH_CLIENT_ID}&response_type=code&scope=${stringScope}&redirect_uri=${process.env.REDIRECT_URL}&prompt=consent&include_granted_scopes=true&access_type=offline`
   } catch (e: any) {
-    console.error('generateAuthUrl error: ', e)
-    throw new CustomError(e.message, 422)
+    logger.error(e.message)
+    throw createError(422, {
+      level: 'generateAuthUrl',
+      message: e.message,
+    })
   }
 }
 
@@ -45,11 +49,14 @@ const job = new CronJob(
       })
       await oauth2Client.setCredentials(data)
     } catch (e: any) {
-      console.error('refreshToken error: ', e)
-      throw new CustomError(e.message, 422)
+      logger.error(e.message)
+      throw createError(422, {
+        level: 'refreshToken',
+        message: e.message,
+      })
     }
 
-    console.log('You will see this message every 45 min')
+    logger.info('You will see this message every 45 min')
   },
   null,
   true,
@@ -66,7 +73,7 @@ export const encodeEventData = async (
       JSON.stringify({
         claimerEmail: input.claimerEmail,
         candidateEmail: input.candidateEmail,
-        event: input.event,
+        eventName: input.eventName,
         duration: input.duration,
       }),
       process.env.CRYPTO_KEY
@@ -92,8 +99,11 @@ export const decodeEventData = async (
 
     return plainToClass(DecodeDataResponse, JSON.parse(data))
   } catch (e: any) {
-    console.error('decodeEventData error: ', e)
-    throw new CustomError(e, 400)
+    logger.error(e.message)
+    throw createError(422, {
+      level: 'decodeEventData',
+      message: e.message,
+    })
   }
 }
 

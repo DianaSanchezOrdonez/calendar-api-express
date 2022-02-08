@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator'
+import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator'
+import { EventTypeEnum } from '../../enums/event-type.enum'
 import { BaseDto } from '../base.dto'
 
 export class EncodeDataDto extends BaseDto {
@@ -6,13 +7,17 @@ export class EncodeDataDto extends BaseDto {
   @IsString()
   @IsEmail()
   readonly claimerEmail: string
+
   @IsNotEmpty()
   @IsString()
   @IsEmail()
   readonly candidateEmail: string
+
   @IsNotEmpty()
   @IsString()
-  readonly event: string
+  @IsEnum(EventTypeEnum)
+  readonly eventName: string
+
   @IsNotEmpty()
   @IsString()
   readonly duration: string

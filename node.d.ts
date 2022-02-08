@@ -11,6 +11,9 @@ declare global {
       REDIRECT_URL: string
       CRYPTO_KEY: string
       FRONTEND_LINK: string
+      INITIAL_INTERVIEW_ID: string
+      CHALLENGE_INTERVIEW_ID: string
+      FINAL_INTERVIEW_ID: string
     }
   }
 }

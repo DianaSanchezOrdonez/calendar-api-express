@@ -5,7 +5,8 @@ import { AccessControlRuleDto } from '../dtos/requests/access-control-rule.dto'
 import { FreeAndBusyCalendarDto } from '../dtos/requests/free-busy-calendar.dto'
 import { FreeBusyResponseDto } from '../dtos/responses/free-busy-calendar-response.dto'
 import { plainToClass } from 'class-transformer'
-import { CustomError } from '../helpers/handler-error'
+import { logger } from '../helpers/logger.helper'
+import createError from 'http-errors'
 
 const calendar = google.calendar({
   version: 'v3',
@@ -42,8 +43,11 @@ export const freeOrBusyCalendar = async (
 
     return plainToClass(FreeBusyResponseDto, freeBusyCalendar)
   } catch (e: any) {
-    console.error('freeOrBusyCalendar error: ', e)
-    throw new CustomError(e.message, 422)
+    logger.error(e.message)
+    throw createError(422, {
+      level: 'freeOrBusyCalendar',
+      message: e.message,
+    })
   }
 }
 
@@ -69,7 +73,10 @@ export const insertAccessControlRule = async (
 
     return shareableLink
   } catch (e: any) {
-    console.error('insertAccessControlRule error: ', e)
-    throw new CustomError(e.message, 422)
+    logger.error(e.message)
+    throw createError(422, {
+      level: 'insertAccessControlRule',
+      message: e.message,
+    })
   }
 }
