@@ -60,8 +60,8 @@
   },
   "scripts": {
     "dev": "dotenv -e .env nodemon src/app.ts",
-    "start": "node dist/app.js",
     "build": "tsc -p .",
+    "start": "node ./dist/src/app.js",
     "prisma:migrate:save": "npx prisma migrate dev --preview-feature --create-only",
     "prisma:migrate:run": "npx prisma migrate deploy --preview-feature",
     "prisma:migrate:run:test": "npx dotenv -e .env.test -- npx prisma migrate deploy --preview-feature",
