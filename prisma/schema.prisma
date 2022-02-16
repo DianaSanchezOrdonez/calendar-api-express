@@ -27,7 +27,7 @@ model User {
 model EventType {
   id          Int      @id @default(autoincrement())
   uuid        String   @unique @default(cuid())
-  name        String
+  name        String   @unique
   location    String
   description String?
   eventLink   String   @map(name: "event_link")

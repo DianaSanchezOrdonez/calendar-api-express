@@ -1,10 +1,10 @@
 import { PrismaClient } from '.prisma/client'
-import { usersSeed, eventTypesSeed } from './seeds'
+import { eventTypesSeed } from './seeds'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  await Promise.all([usersSeed(prisma), eventTypesSeed(prisma)])
+  await Promise.all([eventTypesSeed(prisma)])
   await prisma.$disconnect()
   console.log('database seeded')
 }
