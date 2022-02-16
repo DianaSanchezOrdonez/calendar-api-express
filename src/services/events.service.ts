@@ -3,7 +3,7 @@ import { google } from 'googleapis'
 import { plainToClass } from 'class-transformer'
 import { addMinutes, addMonths } from 'date-fns'
 import { v4 } from 'uuid'
-import { UnprocessableEntity, NotFound, Forbidden } from 'http-errors'
+import { UnprocessableEntity, BadRequest } from 'http-errors'
 import { InsertNewEventDto } from '../dtos/requests/insert-new-event.dto'
 import { EventCreatedDto } from '../dtos/responses/event-created.dto'
 import { logger } from '../helpers/logger.helper'
@@ -14,17 +14,17 @@ import { FreeBusyResponseDto } from '../dtos/responses/free-busy-calendar-respon
 const calendar = google.calendar({ version: 'v3', auth: oAuth2Client })
 
 const getBusySlots = async (input: {
-  eventStartTime: string
-  eventEndTime: string
+  eventStartTime: Date
+  eventEndTime: Date
   timeZone: string
 }): Promise<FreeBusyResponseDto> => {
   try {
     const { eventStartTime, eventEndTime, timeZone } = input
-
+    
     const busySlots = await calendar.freebusy.query({
       requestBody: {
-        timeMin: eventStartTime,
-        timeMax: eventEndTime,
+        timeMin: eventStartTime.toISOString(),
+        timeMax: eventEndTime.toISOString(),
         timeZone,
         items: [{ id: 'primary' }],
       },
@@ -32,6 +32,7 @@ const getBusySlots = async (input: {
 
     return plainToClass(FreeBusyResponseDto, busySlots)
   } catch (e) {
+    console.log('error', e)
     logger.error(e.message)
     throw new UnprocessableEntity(e.message)
   }
@@ -47,7 +48,7 @@ export const getListUserEvents = async (input: {
     const user = await getUserByEmail(email)
 
     if (!user) {
-      throw new NotFound(`User not exist by email ${email}`)
+      throw new BadRequest(`User not exist by email ${email}`)
     }
 
     oAuth2Client.setCredentials({
@@ -58,8 +59,8 @@ export const getListUserEvents = async (input: {
     const endDatetime = addMonths(startDatetime, 1)
 
     return getBusySlots({
-      eventStartTime: startDatetime.toISOString(),
-      eventEndTime: endDatetime.toISOString(),
+      eventStartTime: startDatetime,
+      eventEndTime: endDatetime,
       timeZone,
     })
   } catch (e: any) {
@@ -102,6 +103,7 @@ const insertEvent = async (input: {
 
     const newEvent = await calendar.events.insert({
       calendarId: 'primary',
+      sendUpdates: 'all',
       conferenceDataVersion: 1,
       requestBody: {
         ...event,
@@ -129,7 +131,7 @@ export const inserNewEvent = async (input: {
   eventName: string
   location: string
   description: string
-  startDatetime: string
+  startDatetime: Date
   invitee: string
   inviter: string
 }) => {
@@ -139,17 +141,17 @@ export const inserNewEvent = async (input: {
   const user = await getUserByEmail(inviter)
 
   if (!user) {
-    throw new NotFound(`User not exist by email ${inviter}`)
+    throw new BadRequest(`User not exist by email ${inviter}`)
   }
 
   oAuth2Client.setCredentials({
     refresh_token: user.refreshToken,
   })
 
-  const endDatetime = addMinutes(new Date(startDatetime), 45).toISOString()
+  const endDatetime = addMinutes(new Date(startDatetime), 45)
 
   const { data } = await getBusySlots({
-    eventStartTime: startDatetime,
+    eventStartTime: new Date(startDatetime),
     eventEndTime: endDatetime,
     timeZone,
   })
@@ -165,6 +167,6 @@ export const inserNewEvent = async (input: {
     })
   } else {
     logger.info("Sorry I'm busy")
-    throw new Forbidden('Busy event slot')
+    throw new BadRequest('Busy event slot')
   }
 }

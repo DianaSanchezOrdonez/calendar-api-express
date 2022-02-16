@@ -1,4 +1,3 @@
-import { google } from 'googleapis'
 import { AES, enc } from 'crypto-js'
 import { plainToClass } from 'class-transformer'
 import { UnprocessableEntity } from 'http-errors'
@@ -33,14 +32,7 @@ export const addNewUser = async (input: { code: string }) => {
     console.log('tokens', tokens)
 
     const testDecoded = jwt.decode(tokens.id_token)
-    console.log('testDecoded', testDecoded)
 
-    // const ticket = await oAuth2Client.verifyIdToken({
-    //   idToken: tokens.id_token,
-    //   audience: process.env.CLIENT_ID,
-    // })
-
-    // const { name, email, picture } = ticket.getPayload()
     if (typeof testDecoded !== 'string') {
       return createNewUser({
         fullName: testDecoded.name,

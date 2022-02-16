@@ -13,5 +13,5 @@ export const googleConfig = {
 export const oAuth2Client = new google.auth.OAuth2({
   clientId: googleConfig.clientId,
   clientSecret: googleConfig.clientSecret,
-  redirectUri: 'http://localhost:3001',
+  redirectUri: googleConfig.redirect,
 })
