@@ -62,16 +62,16 @@
     "dev": "dotenv -e .env nodemon src/app.ts",
     "build": "tsc -p .",
     "start": "node ./dist/src/app.js",
-    "prisma:migrate:save": "npx prisma migrate dev --preview-feature --create-only",
-    "prisma:migrate:run": "npx prisma migrate deploy --preview-feature",
-    "prisma:migrate:run:test": "npx dotenv -e .env.test -- npx prisma migrate deploy --preview-feature",
-    "prisma:migrate:reset": "npx prisma migrate reset --preview-feature",
-    "prisma:migrate:reset:test": "npx dotenv -e .env.test -- npx prisma migrate reset --preview-feature",
-    "prisma:reset:test": "npx dotenv -e .env.test -- npx prisma migrate reset --preview-feature --skip-seed -f",
+    "prisma:migrate:save": "prisma migrate dev --preview-feature --create-only",
+    "prisma:migrate:run": "prisma migrate deploy --preview-feature",
+    "prisma:migrate:run:test": "dotenv -e .env.test -- npx prisma migrate deploy --preview-feature",
+    "prisma:migrate:reset": "prisma migrate reset --preview-feature",
+    "prisma:migrate:reset:test": "dotenv -e .env.test -- npx prisma migrate reset --preview-feature",
+    "prisma:reset:test": "dotenv -e .env.test -- npx prisma migrate reset --preview-feature --skip-seed -f",
     "prisma:generate": "prisma generate",
     "prisma:seed": "prisma db seed",
-    "prisma:seed:test": "npx dotenv -e .env.test -- npx prisma db seed --preview-feature",
-    "prisma:format": "npx prisma format"
+    "prisma:seed:test": "dotenv -e .env.test -- npx prisma db seed --preview-feature",
+    "prisma:format": "prisma format"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
