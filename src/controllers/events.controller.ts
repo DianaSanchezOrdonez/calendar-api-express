@@ -2,24 +2,17 @@ import { plainToClass } from 'class-transformer'
 import { Request, Response } from 'express'
 import { EventsByUserDto } from '../dtos/requests/events-by-user.dto'
 import { InsertNewEventDto } from '../dtos/requests/insert-new-event.dto'
-import { getListUserEvents, insertNewEvent } from '../services/events.service'
+import { getListUserEvents, inserNewEvent } from '../services/events.service'
 
-export const getListEventsByUser = async (
-  req: Request,
-  res: Response
-): Promise<Response<'json'>> => {
-  const input = plainToClass(EventsByUserDto, req.params)
-  const calendar = await getListUserEvents(input)
+export const getBusyEventsSlots = async (req: Request, res: Response) => {
+  console.log('req.query', req.query)
+  const events = await getListUserEvents(req.query as { email; timeZone })
 
-  return res.status(200).json(calendar)
+  return res.status(200).send(events)
 }
 
-export const createNewEvent = async (
-  req: Request,
-  res: Response
-): Promise<Response<'json'>> => {
-  const input = plainToClass(InsertNewEventDto, req.body)
-  const calendar = await insertNewEvent(input)
+export const addNewEvent = async (req: Request, res: Response) => {
+  const event = await inserNewEvent(req.body)
 
-  return res.status(200).json(calendar)
+  return res.status(200).send(event)
 }

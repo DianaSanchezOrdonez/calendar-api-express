@@ -1,33 +1,23 @@
-import { Exclude, Expose } from 'class-transformer'
-
-class ErrorsDto {
-  readonly domain: string
-  readonly reason: string
-}
-
+import { Exclude, Expose, Type } from 'class-transformer'
 class BusyTimeDto {
   readonly start: string
   readonly end: string
 }
 
+class UserBusyEventDto {
+  readonly primary: {
+    readonly busy: BusyTimeDto[]
+  }
+}
+@Exclude()
+class FreeBusyDataDto {
+  @Expose()
+  @Type(() => UserBusyEventDto)
+  readonly calendars: UserBusyEventDto
+}
 @Exclude()
 export class FreeBusyResponseDto {
   @Expose()
-  data: {
-    readonly kind: string
-    readonly timeMin: string
-    readonly timeMax: string
-    readonly groups: {
-      '(key)': {
-        errors: ErrorsDto[]
-        calendars: [string]
-      }
-    }
-    readonly calendars: {
-      '(key)': {
-        errors: ErrorsDto[]
-        busy: BusyTimeDto[]
-      }
-    }
-  }
+  @Type(() => FreeBusyDataDto)
+  readonly data: FreeBusyDataDto
 }

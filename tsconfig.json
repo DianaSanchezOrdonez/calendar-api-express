@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es6",
-    "rootDir": "src",
+    "target": "es2017",
     "outDir": "dist",
+    "baseUrl": "./",
     "esModuleInterop": true,
     "strict": false,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "removeComments": true,
+    // "strictNullChecks": true
   }
 }

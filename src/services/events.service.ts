@@ -1,97 +1,111 @@
 import 'reflect-metadata'
+import { google } from 'googleapis'
 import { plainToClass } from 'class-transformer'
 import { addMinutes, addMonths } from 'date-fns'
-import { google } from 'googleapis'
 import { v4 } from 'uuid'
-import { EventsByUserDto } from '../dtos/requests/events-by-user.dto'
+import { UnprocessableEntity, NotFound, Forbidden } from 'http-errors'
 import { InsertNewEventDto } from '../dtos/requests/insert-new-event.dto'
 import { EventCreatedDto } from '../dtos/responses/event-created.dto'
-import { EventsByUserResponseDto } from '../dtos/responses/events-by-user.dto'
-import { oauth2Client } from '../helpers/google-oauth.helper'
-import { EventTypeEnum } from '../enums/event-type.enum'
 import { logger } from '../helpers/logger.helper'
-import createError from 'http-errors'
+import { oAuth2Client } from '../helpers/google-oauth.helper'
+import { getUserByEmail } from './users.service'
+import { FreeBusyResponseDto } from '../dtos/responses/free-busy-calendar-response.dto'
 
-const calendarOuthAuth = google.calendar({
-  version: 'v3',
-  auth: oauth2Client,
-})
+const calendar = google.calendar({ version: 'v3', auth: oAuth2Client })
 
-// https://developers.google.com/calendar/api/v3/reference/events/list
-export const getListUserEvents = async (
-  input: EventsByUserDto
-): Promise<EventsByUserResponseDto> => {
-  await input.isValid()
-  const startDatetime = new Date()
-  const endDatetime = addMonths(startDatetime, 1)
-
+const getBusySlots = async (input: {
+  eventStartTime: string
+  eventEndTime: string
+  timeZone: string
+}): Promise<FreeBusyResponseDto> => {
   try {
-    const events = await calendarOuthAuth.events.list({
-      calendarId: input.userId,
-      timeMin: startDatetime.toISOString(),
-      timeMax: endDatetime.toISOString(),
-      orderBy: 'startTime',
-      singleEvents: true,
-      timeZone: 'UTC+00',
+    const { eventStartTime, eventEndTime, timeZone } = input
+
+    const busySlots = await calendar.freebusy.query({
+      requestBody: {
+        timeMin: eventStartTime,
+        timeMax: eventEndTime,
+        timeZone,
+        items: [{ id: 'primary' }],
+      },
     })
 
-    return plainToClass(EventsByUserResponseDto, events)
-  } catch (e: any) {
+    return plainToClass(FreeBusyResponseDto, busySlots)
+  } catch (e) {
     logger.error(e.message)
-    throw createError(422, {
-      level: 'getListUserEvents',
-      message: e.message,
-    })
+    throw new UnprocessableEntity(e.message)
   }
 }
 
-// https://developers.google.com/calendar/api/v3/reference/events/insert
-export const insertNewEvent = async (
-  input: InsertNewEventDto
-): Promise<EventCreatedDto> => {
-  await input.isValid()
-  const { eventType, claimerEmail, candidateEmail, startDatetime, timeZone } =
-    input
-  const endDatetime = addMinutes(new Date(startDatetime), 45)
-  let calendarId: string
-
-  switch (eventType) {
-    case EventTypeEnum.initialInterview:
-      calendarId = process.env.INITIAL_INTERVIEW_ID
-      break
-    case EventTypeEnum.challengeInterview:
-      calendarId = process.env.CHALLENGE_INTERVIEW_ID
-      break
-    case EventTypeEnum.finalInterview:
-      calendarId = process.env.FINAL_INTERVIEW_ID
-      break
-    default:
-      break
-  }
-
+// https://developers.google.com/calendar/api/v3/reference/events/list
+export const getListUserEvents = async (input: {
+  email: string
+  timeZone: string
+}): Promise<FreeBusyResponseDto> => {
   try {
-    const newEvent = await calendarOuthAuth.events.insert({
-      calendarId,
+    const { email, timeZone } = input
+    const user = await getUserByEmail(email)
+
+    if (!user) {
+      throw new NotFound(`User not exist by email ${email}`)
+    }
+
+    oAuth2Client.setCredentials({
+      refresh_token: user.refreshToken,
+    })
+
+    const startDatetime = new Date()
+    const endDatetime = addMonths(startDatetime, 1)
+
+    return getBusySlots({
+      eventStartTime: startDatetime.toISOString(),
+      eventEndTime: endDatetime.toISOString(),
+      timeZone,
+    })
+  } catch (e: any) {
+    logger.error(e.message)
+    throw new UnprocessableEntity(e.message)
+  }
+}
+
+const insertEvent = async (input: {
+  eventName
+  location
+  description
+  startDatetime
+  endDatetime
+  timeZone
+  invitee
+}): Promise<EventCreatedDto> => {
+  try {
+    const {
+      eventName,
+      startDatetime,
+      endDatetime,
+      timeZone,
+      invitee,
+      ...rest
+    } = input
+    const event = {
+      summary: eventName,
+      start: {
+        dateTime: startDatetime,
+        timeZone,
+      },
+      end: {
+        dateTime: endDatetime,
+        timeZone,
+      },
+      colorId: '1',
+      ...rest,
+    }
+
+    const newEvent = await calendar.events.insert({
+      calendarId: 'primary',
       conferenceDataVersion: 1,
-      sendUpdates: 'all',
       requestBody: {
-        summary: eventType,
-        start: {
-          dateTime: startDatetime,
-          timeZone,
-        },
-        end: {
-          dateTime: endDatetime.toISOString(),
-          timeZone,
-        },
-        attendees: [
-          {
-            email: candidateEmail,
-          },
-          {
-            email: claimerEmail,
-          },
-        ],
+        ...event,
+        attendees: [{ email: invitee }],
         conferenceData: {
           createRequest: {
             requestId: v4(),
@@ -104,11 +118,53 @@ export const insertNewEvent = async (
     })
 
     return plainToClass(EventCreatedDto, newEvent)
-  } catch (e: any) {
+  } catch (e) {
     logger.error(e.message)
-    throw createError(422, {
-      level: 'insertNewEvent',
-      message: e.message,
+    throw new UnprocessableEntity(e.message)
+  }
+}
+
+export const inserNewEvent = async (input: {
+  timeZone: string
+  eventName: string
+  location: string
+  description: string
+  startDatetime: string
+  invitee: string
+  inviter: string
+}) => {
+  const { eventName, timeZone, startDatetime, inviter, invitee, ...rest } =
+    input
+
+  const user = await getUserByEmail(inviter)
+
+  if (!user) {
+    throw new NotFound(`User not exist by email ${inviter}`)
+  }
+
+  oAuth2Client.setCredentials({
+    refresh_token: user.refreshToken,
+  })
+
+  const endDatetime = addMinutes(new Date(startDatetime), 45).toISOString()
+
+  const { data } = await getBusySlots({
+    eventStartTime: startDatetime,
+    eventEndTime: endDatetime,
+    timeZone,
+  })
+
+  if (data.calendars.primary.busy.length === 0) {
+    return insertEvent({
+      eventName,
+      startDatetime,
+      endDatetime,
+      timeZone,
+      invitee,
+      ...rest,
     })
+  } else {
+    logger.info("Sorry I'm busy")
+    throw new Forbidden('Busy event slot')
   }
 }

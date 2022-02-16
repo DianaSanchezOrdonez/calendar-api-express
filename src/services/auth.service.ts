@@ -1,68 +1,61 @@
-import { CronJob } from 'cron'
-import { defaultScope } from '../helpers/google-jwt.helper'
-import { googleConfig, oauth2Client } from '../helpers/google-oauth.helper'
+import { google } from 'googleapis'
 import { AES, enc } from 'crypto-js'
-import { DecodeDataResponse } from '../dtos/responses/decode-data.dto'
 import { plainToClass } from 'class-transformer'
+import { UnprocessableEntity } from 'http-errors'
+import { DecodeDataResponse } from '../dtos/responses/decode-data.dto'
 import { EncodeDataDto } from '../dtos/requests/endode-data.dto'
 import { HashDataDto } from '../dtos/requests/hash-data.dto'
-import axios from 'axios'
 import { logger } from '../helpers/logger.helper'
-import createError from 'http-errors'
+import { createNewUser } from './users.service'
+import { googleConfig, oAuth2Client } from '../helpers/google-oauth.helper'
+import jwt from 'jsonwebtoken'
 
-const convertArrayScopeToString = (scope: Array<string>): string => {
-  const stringScope = scope.toString().replace(/[,]/g, '+')
-
-  return stringScope
-}
-
-export const generateAuthUrl = async (): Promise<string> => {
+export const createAuthLink = (): string => {
   try {
-    const stringScope = convertArrayScopeToString(defaultScope)
+    const url = oAuth2Client.generateAuthUrl({
+      access_type: 'offline',
+      include_granted_scopes: true,
+      response_type: 'code',
+      scope: googleConfig.scope,
+      prompt: 'consent',
+    })
 
-    return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.OAUTH_CLIENT_ID}&response_type=code&scope=${stringScope}&redirect_uri=${process.env.REDIRECT_URL}&prompt=consent&include_granted_scopes=true&access_type=offline`
+    return url
   } catch (e: any) {
     logger.error(e.message)
-    throw createError(422, {
-      level: 'generateAuthUrl',
-      message: e.message,
-    })
+    throw new UnprocessableEntity(e.message)
   }
 }
 
-// https://developers.google.com/identity/protocols/oauth2/web-server#incrementalAuth
-export const refreshToken = async (code: string): Promise<void> => {
-  const { tokens } = await oauth2Client.getToken(code)
+export const addNewUser = async (input: { code: string }) => {
+  try {
+    const { tokens } = await oAuth2Client.getToken(input.code)
+    console.log('tokens', tokens)
 
-  return oauth2Client.setCredentials(tokens)
-}
+    const testDecoded = jwt.decode(tokens.id_token)
+    console.log('testDecoded', testDecoded)
 
-const job = new CronJob(
-  '0 */45 * * * *',
-  async () => {
-    try {
-      const { data } = await axios.post('https://oauth2.googleapis.com/token', {
-        client_id: googleConfig.clientId,
-        client_secret: googleConfig.clientSecret,
-        grant_type: 'refresh_token',
-        refresh_token: process.env.REFRESH_TOKEN,
-      })
-      await oauth2Client.setCredentials(data)
-    } catch (e: any) {
-      logger.error(e.message)
-      throw createError(422, {
-        level: 'refreshToken',
-        message: e.message,
+    // const ticket = await oAuth2Client.verifyIdToken({
+    //   idToken: tokens.id_token,
+    //   audience: process.env.CLIENT_ID,
+    // })
+
+    // const { name, email, picture } = ticket.getPayload()
+    if (typeof testDecoded !== 'string') {
+      return createNewUser({
+        fullName: testDecoded.name,
+        email: testDecoded.email,
+        picture: testDecoded.picture,
+        refreshToken: tokens.refresh_token,
       })
     }
 
-    logger.info('You will see this message every 45 min')
-  },
-  null,
-  true,
-  'UTC'
-)
-job.start()
+    
+  } catch (e: any) {
+    logger.error(e.message)
+    throw new UnprocessableEntity(e.message)
+  }
+}
 
 export const encodeEventData = async (
   input: EncodeDataDto
@@ -100,13 +93,11 @@ export const decodeEventData = async (
     return plainToClass(DecodeDataResponse, JSON.parse(data))
   } catch (e: any) {
     logger.error(e.message)
-    throw createError(422, {
-      level: 'decodeEventData',
-      message: e.message,
-    })
+    throw new UnprocessableEntity(e.message)
   }
 }
 
+// https://developers.google.com/identity/protocols/oauth2/web-server#incrementalAuth
 // https://console.cloud.google.com/apis/credentials/oauthclient/30493417252-ajuf1j1kn1rt0c9jcoqrbj39pgu2rhng.apps.googleusercontent.com?orgonly=true&project=nestjsnbblapi&supportedpurview=organizationId
 // https://developers.google.com/oauthplayground/
 // https://developers.google.com/identity/protocols/oauth2/web-server#httprest_1

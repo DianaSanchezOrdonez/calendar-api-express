@@ -4,10 +4,14 @@ export const googleConfig = {
   clientId: process.env.OAUTH_CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
   redirect: process.env.REDIRECT_URL,
+  scope: [
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/calendar.events',
+  ],
 }
 
-export const oauth2Client = new google.auth.OAuth2({
+export const oAuth2Client = new google.auth.OAuth2({
   clientId: googleConfig.clientId,
   clientSecret: googleConfig.clientSecret,
-  redirectUri: googleConfig.redirect,
+  redirectUri: 'http://localhost:3001',
 })

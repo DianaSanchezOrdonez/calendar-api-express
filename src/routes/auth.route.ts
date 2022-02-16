@@ -1,16 +1,16 @@
 import { Router } from 'express'
 import AsyncRouter from 'express-promise-router'
 import {
-  getAuthCode,
-  googleAuth,
   encodeData,
   decodeData,
+  generateAuthLink,
+  createNewUser
 } from '../controllers/auth.controller'
 
 const router: Router = AsyncRouter()
 
-router.route('/').get(googleAuth)
-router.route('/google/callback').get(getAuthCode)
+router.route('/create-auth-link').get(generateAuthLink)
+router.route('/sign-up').post(createNewUser)
 router.route('/encode').post(encodeData)
 router.route('/decode').post(decodeData)
 

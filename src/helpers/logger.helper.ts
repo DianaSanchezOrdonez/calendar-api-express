@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from 'winston'
-// [winston] Attempt to write logs with no transports {"message":"Hello again distributed logs","level":"error"}
+
 const myFormat = format.combine(
   format.colorize(),
   format.timestamp(),
@@ -13,10 +13,3 @@ export const logger = createLogger({
     }),
   ],
 })
-
-// logger.configure({
-//   level: 'error',
-//   transports: [
-//       new transports.Console()
-//   ]
-// });

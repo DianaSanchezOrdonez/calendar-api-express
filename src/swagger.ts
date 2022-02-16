@@ -11,15 +11,15 @@ export const swaggerDoc = {
   },
   host:
     process.env.NODE_ENV === 'development'
-      ? 'localhost:3000'
+      ? `6327-2800-200-f008-bb49-5c3e-391-3161-a4a0.ngrok.io`
       : 'calendar-api-express.herokuapp.com',
   basePath: '/',
   paths: {
-    '/auth': {
+    '/create-auth-link': {
       get: {
         tags: ['Auth'],
         summary: 'Get screen of auth',
-        operationId: 'getEvent',
+        operationId: 'generateAuthLink',
         responses: {
           '200': {
             description: 'Authentication URL',
@@ -27,29 +27,34 @@ export const swaggerDoc = {
         },
       },
     },
-    '/auth/encode': {
+    '/sign-up': {
       post: {
         tags: ['Auth'],
-        summary: 'Encode claimer and event data',
-        operationId: 'postEncode',
+        operationId: 'createNewUser',
         parameters: [
           {
-            name: 'body',
+            name: 'code',
             in: 'body',
-            description:
-              'body of event and claimer info that need to be encoded',
             required: true,
-            schema: { $ref: '#/definitions/Encode' },
+            schema: {
+              type: 'object',
+              required: ['code'],
+              properties: {
+                code: {
+                  type: 'string',
+                },
+              },
+            },
           },
         ],
         responses: {
           '200': {
-            description: 'Hash',
+            description: '',
           },
         },
       },
     },
-    '/auth/decode': {
+    '/decode': {
       post: {
         tags: ['Auth'],
         summary: 'Decode hash',
@@ -78,11 +83,11 @@ export const swaggerDoc = {
         },
       },
     },
-    '/event': {
+    '/events': {
       post: {
         tags: ['Events'],
         summary: 'Create new Event',
-        operationId: 'postEvent',
+        operationId: 'addNewEvent',
         parameters: [
           {
             name: 'body',
@@ -92,34 +97,36 @@ export const swaggerDoc = {
             schema: {
               type: 'object',
               required: [
-                'eventType',
                 'timeZone',
-                'candidateEmail',
-                'claimerEmail',
+                'eventName',
+                'location',
+                'description',
                 'startDatetime',
+                'invitee',
+                'inviter',
               ],
               properties: {
-                eventType: {
-                  type: 'string',
-                  enum: [
-                    'Initial Interview',
-                    'Challenge Interview',
-                    'Final Interview',
-                  ],
-                  default: 'Initial Interview',
-                },
                 timeZone: {
                   type: 'string',
                 },
-                candidateEmail: {
+                eventName: {
                   type: 'string',
                 },
-                claimerEmail: {
+                location: {
+                  type: 'string',
+                },
+                description: {
                   type: 'string',
                 },
                 startDatetime: {
                   type: 'string',
                   format: 'date-time',
+                },
+                invitee: {
+                  type: 'string',
+                },
+                inviter: {
+                  type: 'string',
                 },
               },
             },
@@ -132,17 +139,22 @@ export const swaggerDoc = {
           },
         },
       },
-    },
-    '/event/{userId}': {
       get: {
         tags: ['Events'],
-        summary: 'Get a event by userId',
+        summary: 'Get a event by email',
         operationId: 'getEvent',
         parameters: [
           {
-            name: 'userId',
-            in: 'path',
-            description: 'ID of event that needs to be got',
+            name: 'email',
+            in: 'query',
+            required: true,
+            schema: {
+              type: 'string',
+            },
+          },
+          {
+            name: 'timeZone',
+            in: 'query',
             required: true,
             schema: {
               type: 'string',
@@ -153,6 +165,29 @@ export const swaggerDoc = {
           '200': {
             description: "A list of user's events",
             schema: { $ref: '#/definitions/Events' },
+          },
+        },
+      },
+    },
+    '/users/validate-user': {
+      get: {
+        tags: ['Users'],
+        summary: 'Get a user by email',
+        operationId: 'getUser',
+        parameters: [
+          {
+            name: 'email',
+            in: 'query',
+            required: true,
+            schema: {
+              type: 'string',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'User data',
+            schema: { $ref: '#/definitions/User' },
           },
         },
       },
@@ -263,6 +298,37 @@ export const swaggerDoc = {
               type: 'string',
             },
           },
+        },
+      },
+    },
+    User: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+        },
+        uuid: {
+          type: 'string',
+        },
+        fullName: {
+          type: 'string',
+        },
+        email: {
+          type: 'number',
+        },
+        picture: {
+          type: 'string',
+        },
+        refreshToken: {
+          type: 'string',
+        },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+        },
+        updatedAt: {
+          type: 'string',
+          format: 'date-time',
         },
       },
     },
