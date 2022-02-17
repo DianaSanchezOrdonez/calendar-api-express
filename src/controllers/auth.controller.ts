@@ -6,9 +6,9 @@ import {
   createAuthLink,
   decodeEventData,
   encodeEventData,
-  addNewUser,
+  signUpNewUser,
 } from '../services/auth.service'
-import { logger } from '../helpers/logger.helper'
+import { AccessCodeDto } from '../dtos/requests/access-code.dto'
 
 export const generateAuthLink = (req: Request, res: Response) => {
   const googleAuthUrl = createAuthLink()
@@ -16,9 +16,9 @@ export const generateAuthLink = (req: Request, res: Response) => {
   return res.status(200).send(googleAuthUrl)
 }
 
-export const createNewUser = async (req: Request, res: Response) => {
-  logger.info('env', process.env.REDIRECT_URL)
-  const user = await addNewUser(req.body)
+export const signUp = async (req: Request, res: Response) => {
+  const input = plainToClass(AccessCodeDto, req.body)
+  const user = await signUpNewUser(input)
 
   return res.status(200).send(user)
 }
@@ -41,10 +41,4 @@ export const decodeData = async (
   const decode = await decodeEventData(input)
 
   return res.status(200).json(decode)
-}
-
-export const googleLogin = async (req: Request, res: Response) => {
-  // const data = await googleAuth(req.session)
-  // return res.status(201).json(data)
-  return res.status(201)
 }

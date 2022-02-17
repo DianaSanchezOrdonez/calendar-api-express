@@ -1,5 +1,6 @@
 import { AES, enc } from 'crypto-js'
 import { plainToClass } from 'class-transformer'
+import jwt from 'jsonwebtoken'
 import { UnprocessableEntity } from 'http-errors'
 import { DecodeDataResponse } from '../dtos/responses/decode-data.dto'
 import { EncodeDataDto } from '../dtos/requests/endode-data.dto'
@@ -7,8 +8,9 @@ import { HashDataDto } from '../dtos/requests/hash-data.dto'
 import { logger } from '../helpers/logger.helper'
 import { createNewUser } from './users.service'
 import { googleConfig, oAuth2Client } from '../helpers/google-oauth.helper'
-import jwt from 'jsonwebtoken'
+import { AccessCodeDto } from '../dtos/requests/access-code.dto'
 
+// https://developers.google.com/identity/protocols/oauth2/web-server#httprest_1
 export const createAuthLink = (): string => {
   try {
     const url = oAuth2Client.generateAuthUrl({
@@ -26,10 +28,9 @@ export const createAuthLink = (): string => {
   }
 }
 
-export const addNewUser = async (input: { code: string }) => {
+export const signUpNewUser = async (input: AccessCodeDto) => {
   try {
     const { tokens } = await oAuth2Client.getToken(input.code)
-    console.log('tokens', tokens)
 
     const testDecoded = jwt.decode(tokens.id_token)
 
@@ -41,8 +42,6 @@ export const addNewUser = async (input: { code: string }) => {
         refreshToken: tokens.refresh_token,
       })
     }
-
-    
   } catch (e: any) {
     logger.error(e.message)
     throw new UnprocessableEntity(e.message)
@@ -88,9 +87,3 @@ export const decodeEventData = async (
     throw new UnprocessableEntity(e.message)
   }
 }
-
-// https://developers.google.com/identity/protocols/oauth2/web-server#incrementalAuth
-// https://console.cloud.google.com/apis/credentials/oauthclient/30493417252-ajuf1j1kn1rt0c9jcoqrbj39pgu2rhng.apps.googleusercontent.com?orgonly=true&project=nestjsnbblapi&supportedpurview=organizationId
-// https://developers.google.com/oauthplayground/
-// https://developers.google.com/identity/protocols/oauth2/web-server#httprest_1
-// https://cloud.google.com/apigee/docs/api-platform/security/oauth/access-tokens

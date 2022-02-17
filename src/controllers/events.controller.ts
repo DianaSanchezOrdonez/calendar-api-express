@@ -1,18 +1,19 @@
 import { plainToClass } from 'class-transformer'
 import { Request, Response } from 'express'
-import { EventsByUserDto } from '../dtos/requests/events-by-user.dto'
 import { InsertNewEventDto } from '../dtos/requests/insert-new-event.dto'
+import { BusySlotsDto } from '../dtos/requests/free-busy-calendar.dto'
 import { getListUserEvents, inserNewEvent } from '../services/events.service'
 
 export const getBusyEventsSlots = async (req: Request, res: Response) => {
-  console.log('req.query', req.query)
-  const events = await getListUserEvents(req.query as { email; timeZone })
+  const input = plainToClass(BusySlotsDto, req.query)
+  const events = await getListUserEvents(input)
 
   return res.status(200).send(events)
 }
 
 export const addNewEvent = async (req: Request, res: Response) => {
-  const event = await inserNewEvent(req.body)
+  const input = plainToClass(InsertNewEventDto, req.body)
+  const event = await inserNewEvent(input)
 
   return res.status(200).send(event)
 }

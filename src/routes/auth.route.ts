@@ -4,13 +4,13 @@ import {
   encodeData,
   decodeData,
   generateAuthLink,
-  createNewUser
+  signUp,
 } from '../controllers/auth.controller'
 
 const router: Router = AsyncRouter()
 
 router.route('/create-auth-link').get(generateAuthLink)
-router.route('/sign-up').post(createNewUser)
+router.route('/sign-up').post(signUp)
 router.route('/encode').post(encodeData)
 router.route('/decode').post(decodeData)
 

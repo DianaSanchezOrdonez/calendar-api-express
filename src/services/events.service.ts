@@ -3,13 +3,15 @@ import { google } from 'googleapis'
 import { plainToClass } from 'class-transformer'
 import { addMinutes, addMonths } from 'date-fns'
 import { v4 } from 'uuid'
+import { Event, PrismaClient } from '@prisma/client'
 import { UnprocessableEntity, BadRequest } from 'http-errors'
-import { InsertNewEventDto } from '../dtos/requests/insert-new-event.dto'
 import { EventCreatedDto } from '../dtos/responses/event-created.dto'
 import { logger } from '../helpers/logger.helper'
 import { oAuth2Client } from '../helpers/google-oauth.helper'
 import { getUserByEmail } from './users.service'
 import { FreeBusyResponseDto } from '../dtos/responses/free-busy-calendar-response.dto'
+import { BusySlotsDto } from '../dtos/requests/free-busy-calendar.dto'
+import { InsertNewEventDto } from '../dtos/requests/insert-new-event.dto'
 
 const calendar = google.calendar({ version: 'v3', auth: oAuth2Client })
 
@@ -20,7 +22,7 @@ const getBusySlots = async (input: {
 }): Promise<FreeBusyResponseDto> => {
   try {
     const { eventStartTime, eventEndTime, timeZone } = input
-    
+
     const busySlots = await calendar.freebusy.query({
       requestBody: {
         timeMin: eventStartTime.toISOString(),
@@ -39,18 +41,18 @@ const getBusySlots = async (input: {
 }
 
 // https://developers.google.com/calendar/api/v3/reference/events/list
-export const getListUserEvents = async (input: {
-  email: string
-  timeZone: string
-}): Promise<FreeBusyResponseDto> => {
+export const getListUserEvents = async (
+  input: BusySlotsDto
+): Promise<FreeBusyResponseDto> => {
+  await input.isValid()
+  const { email, timeZone } = input
+  const user = await getUserByEmail(email)
+
+  if (!user) {
+    throw new BadRequest(`User not exist by email ${email}`)
+  }
+
   try {
-    const { email, timeZone } = input
-    const user = await getUserByEmail(email)
-
-    if (!user) {
-      throw new BadRequest(`User not exist by email ${email}`)
-    }
-
     oAuth2Client.setCredentials({
       refresh_token: user.refreshToken,
     })
@@ -70,13 +72,11 @@ export const getListUserEvents = async (input: {
 }
 
 const insertEvent = async (input: {
-  eventName
-  location
-  description
-  startDatetime
-  endDatetime
-  timeZone
-  invitee
+  eventName: string
+  startDatetime: Date
+  endDatetime: Date
+  timeZone: string
+  inviteeEmail: string
 }): Promise<EventCreatedDto> => {
   try {
     const {
@@ -84,20 +84,19 @@ const insertEvent = async (input: {
       startDatetime,
       endDatetime,
       timeZone,
-      invitee,
+      inviteeEmail,
       ...rest
     } = input
     const event = {
       summary: eventName,
       start: {
-        dateTime: startDatetime,
+        dateTime: startDatetime.toISOString(),
         timeZone,
       },
       end: {
-        dateTime: endDatetime,
+        dateTime: endDatetime.toISOString(),
         timeZone,
       },
-      colorId: '1',
       ...rest,
     }
 
@@ -107,7 +106,7 @@ const insertEvent = async (input: {
       conferenceDataVersion: 1,
       requestBody: {
         ...event,
-        attendees: [{ email: invitee }],
+        attendees: [{ email: inviteeEmail }],
         conferenceData: {
           createRequest: {
             requestId: v4(),
@@ -126,47 +125,99 @@ const insertEvent = async (input: {
   }
 }
 
-export const inserNewEvent = async (input: {
-  timeZone: string
-  eventName: string
-  location: string
-  description: string
-  startDatetime: Date
-  invitee: string
-  inviter: string
-}) => {
-  const { eventName, timeZone, startDatetime, inviter, invitee, ...rest } =
-    input
+export const inserNewEvent = async (
+  input: InsertNewEventDto
+): Promise<Event> => {
+  const {
+    eventName,
+    timeZone,
+    startDatetime,
+    inviterEmail,
+    inviteeEmail,
+    ...rest
+  } = input
 
-  const user = await getUserByEmail(inviter)
+  await input.isValid()
+  const user = await getUserByEmail(inviterEmail)
 
   if (!user) {
-    throw new BadRequest(`User not exist by email ${inviter}`)
+    throw new BadRequest(`User not exist by email ${inviterEmail}`)
   }
 
   oAuth2Client.setCredentials({
     refresh_token: user.refreshToken,
   })
 
-  const endDatetime = addMinutes(new Date(startDatetime), 45)
+  const eventStartTime = new Date(startDatetime)
+  const endDatetime = addMinutes(eventStartTime, 45)
 
   const { data } = await getBusySlots({
-    eventStartTime: new Date(startDatetime),
+    eventStartTime,
     eventEndTime: endDatetime,
     timeZone,
   })
 
   if (data.calendars.primary.busy.length === 0) {
-    return insertEvent({
+    const { data } = await insertEvent({
       eventName,
-      startDatetime,
+      startDatetime: eventStartTime,
       endDatetime,
       timeZone,
-      invitee,
+      inviteeEmail,
       ...rest,
+    })
+
+    return createEvent({
+      meetingLink: data.hangoutLink,
+      eventName,
+      startDatetime: eventStartTime,
+      endDatetime,
+      timeZone,
+      inviteeEmail,
+      inviterEmail,
     })
   } else {
     logger.info("Sorry I'm busy")
     throw new BadRequest('Busy event slot')
+  }
+}
+
+// Repositories
+const prisma = new PrismaClient()
+
+const createEvent = async (input: {
+  eventName: string
+  startDatetime: Date
+  endDatetime: Date
+  timeZone: string
+  inviteeEmail: string
+  inviterEmail: string
+  meetingLink: string
+}): Promise<Event> => {
+  try {
+    const { eventName, startDatetime, endDatetime, inviterEmail, ...rest } =
+      input
+    const eventCreated = await prisma.event.create({
+      data: {
+        eventType: {
+          connect: {
+            name: eventName,
+          },
+        },
+        user: {
+          connect: {
+            email: inviterEmail,
+          },
+        },
+        meetingStart: startDatetime,
+        meetingFinish: endDatetime,
+        ...rest,
+      },
+    })
+
+    return eventCreated
+  } catch (e) {
+    logger.error(e.message)
+    throw new UnprocessableEntity(e.message)
   }
 }

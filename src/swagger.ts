@@ -11,7 +11,7 @@ export const swaggerDoc = {
   },
   host:
     process.env.NODE_ENV === 'development'
-      ? `6327-2800-200-f008-bb49-5c3e-391-3161-a4a0.ngrok.io`
+      ? process.env.LOCAL_URL
       : 'calendar-api-express.herokuapp.com',
   basePath: '/',
   paths: {
@@ -25,6 +25,7 @@ export const swaggerDoc = {
             description: 'Authentication URL',
           },
         },
+        deprecated: true
       },
     },
     '/sign-up': {
