@@ -1,5 +1,5 @@
 export const swaggerDoc = {
-  swagger: '2.0',
+  openapi: '3.0.0',
   info: {
     version: '1.0.0',
     title: 'Calendar API',
@@ -9,11 +9,6 @@ export const swaggerDoc = {
       url: 'https://opensource.org/licenses/MIT',
     },
   },
-  host:
-    process.env.NODE_ENV === 'development'
-      ? process.env.LOCAL_URL
-      : 'calendar-api-express.herokuapp.com',
-  basePath: '/',
   paths: {
     '/create-auth-link': {
       get: {
@@ -100,11 +95,9 @@ export const swaggerDoc = {
               required: [
                 'timeZone',
                 'eventName',
-                'location',
-                'description',
                 'startDatetime',
-                'invitee',
-                'inviter',
+                'inviterEmail',
+                'inviteeEmail',
               ],
               properties: {
                 timeZone: {
@@ -113,20 +106,14 @@ export const swaggerDoc = {
                 eventName: {
                   type: 'string',
                 },
-                location: {
-                  type: 'string',
-                },
-                description: {
-                  type: 'string',
-                },
                 startDatetime: {
                   type: 'string',
                   format: 'date-time',
                 },
-                invitee: {
+                inviterEmail: {
                   type: 'string',
                 },
-                inviter: {
+                inviteeEmail: {
                   type: 'string',
                 },
               },
@@ -268,35 +255,26 @@ export const swaggerDoc = {
             id: {
               type: 'string',
             },
-            summary: {
+            inviteeEmail: {
               type: 'string',
             },
-            start: {
-              type: 'object',
-              properties: {
-                dateTime: {
-                  type: 'string',
-                  format: 'date-time',
-                },
-                timeZone: {
-                  type: 'string',
-                },
-              },
-            },
-            end: {
-              type: 'object',
-              properties: {
-                dateTime: {
-                  type: 'string',
-                  format: 'date-time',
-                },
-                timeZone: {
-                  type: 'string',
-                },
-              },
-            },
-            hangoutLink: {
+            meetingLink: {
               type: 'string',
+            },
+            timeZone: {
+              type: 'string',
+            },
+            meetingStart: {
+              type: 'string',
+            },
+            meetingFinish: {
+              type: 'string',
+            },
+            userId: {
+              type: 'number',
+            },
+            eventTypeId: {
+              type: 'number',
             },
           },
         },

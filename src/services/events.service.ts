@@ -134,7 +134,6 @@ export const inserNewEvent = async (
     startDatetime,
     inviterEmail,
     inviteeEmail,
-    ...rest
   } = input
 
   await input.isValid()
@@ -164,7 +163,6 @@ export const inserNewEvent = async (
       endDatetime,
       timeZone,
       inviteeEmail,
-      ...rest,
     })
 
     return createEvent({
