@@ -6,12 +6,12 @@ export class EncodeDataDto extends BaseDto {
   @IsNotEmpty()
   @IsString()
   @IsEmail()
-  readonly claimerEmail: string
+  readonly inviterEmail: string
 
   @IsNotEmpty()
   @IsString()
   @IsEmail()
-  readonly candidateEmail: string
+  readonly inviteeEmail: string
 
   @IsNotEmpty()
   @IsString()

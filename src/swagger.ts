@@ -20,7 +20,7 @@ export const swaggerDoc = {
             description: 'Authentication URL',
           },
         },
-        deprecated: true
+        deprecated: true,
       },
     },
     '/sign-up': {
@@ -46,6 +46,44 @@ export const swaggerDoc = {
         responses: {
           '200': {
             description: '',
+          },
+        },
+      },
+    },
+    '/encode': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Encode hash',
+        operationId: 'encodeData',
+        parameters: [
+          {
+            name: 'body',
+            in: 'body',
+            description: 'Encode data',
+            required: true,
+            schema: {
+              type: 'object',
+              properties: {
+                inviterEmail: {
+                  type: 'string',
+                },
+                inviteeEmail: {
+                  type: 'string',
+                },
+                eventName: {
+                  type: 'string',
+                },
+                duration: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Hash',
+            schema: { $ref: '#/definitions/Encode' },
           },
         },
       },
@@ -189,10 +227,10 @@ export const swaggerDoc = {
       type: 'object',
       required: ['claimerEmail', 'candidateEmail', 'event', 'duration'],
       properties: {
-        claimerEmail: {
+        inviterEmail: {
           type: 'string',
         },
-        candidateEmail: {
+        inviteeEmail: {
           type: 'string',
         },
         event: {
@@ -255,6 +293,9 @@ export const swaggerDoc = {
             id: {
               type: 'string',
             },
+            uuid: {
+              type: 'string',
+            },
             inviteeEmail: {
               type: 'string',
             },
@@ -275,6 +316,14 @@ export const swaggerDoc = {
             },
             eventTypeId: {
               type: 'number',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
             },
           },
         },

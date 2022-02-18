@@ -55,8 +55,8 @@ export const encodeEventData = async (
   while (true) {
     const hash = AES.encrypt(
       JSON.stringify({
-        claimerEmail: input.claimerEmail,
-        candidateEmail: input.candidateEmail,
+        inviterEmail: input.inviterEmail,
+        inviteeEmail: input.inviteeEmail,
         eventName: input.eventName,
         duration: input.duration,
       }),

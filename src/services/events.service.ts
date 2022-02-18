@@ -128,13 +128,8 @@ const insertEvent = async (input: {
 export const inserNewEvent = async (
   input: InsertNewEventDto
 ): Promise<Event> => {
-  const {
-    eventName,
-    timeZone,
-    startDatetime,
-    inviterEmail,
-    inviteeEmail,
-  } = input
+  const { eventName, timeZone, startDatetime, inviterEmail, inviteeEmail } =
+    input
 
   await input.isValid()
   const user = await getUserByEmail(inviterEmail)
