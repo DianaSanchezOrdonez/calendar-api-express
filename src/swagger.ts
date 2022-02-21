@@ -44,8 +44,8 @@ export const swaggerDoc = {
           },
         ],
         responses: {
-          '200': {
-            description: '',
+          '201': {
+            description: 'User has been created',
           },
         },
       },
@@ -159,8 +159,8 @@ export const swaggerDoc = {
           },
         ],
         responses: {
-          '200': {
-            description: 'Event created',
+          '201': {
+            description: 'Event has been created',
             schema: { $ref: '#/definitions/EventCreated' },
           },
         },

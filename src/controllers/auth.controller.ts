@@ -1,44 +1,21 @@
 import { plainToClass } from 'class-transformer'
 import { Request, Response } from 'express'
-import { EncodeDataDto } from '../dtos/requests/endode-data.dto'
-import { HashDataDto } from '../dtos/requests/hash-data.dto'
-import {
-  createAuthLink,
-  decodeEventData,
-  encodeEventData,
-  signUpNewUser,
-} from '../services/auth.service'
-import { AccessCodeDto } from '../dtos/requests/access-code.dto'
+import { AuthService } from '../services/auth.service'
+import { AccessCodeDto } from '../dtos/auths/requests/access-code.dto'
 
-export const generateAuthLink = (req: Request, res: Response) => {
-  const googleAuthUrl = createAuthLink()
+export const generateAuthLink = (req: Request, res: Response): void => {
+  const result = AuthService.generateAuthUrl()
 
-  return res.status(200).send(googleAuthUrl)
+  res.status(200).json(result)
 }
 
-export const signUp = async (req: Request, res: Response) => {
-  const input = plainToClass(AccessCodeDto, req.body)
-  const user = await signUpNewUser(input)
+export const signUp = async (req: Request, res: Response): Promise<void> => {
+  const dto = plainToClass(AccessCodeDto, req.body)
+  await dto.isValid()
 
-  return res.status(200).send(user)
+  const result = await AuthService.signUp(dto)
+
+  res.status(201).json(result)
 }
 
-export const encodeData = async (
-  req: Request,
-  res: Response
-): Promise<Response<'json'>> => {
-  const input = plainToClass(EncodeDataDto, req.body)
-  const encode = await encodeEventData(input)
 
-  return res.status(200).json(encode)
-}
-
-export const decodeData = async (
-  req: Request,
-  res: Response
-): Promise<Response<'json'>> => {
-  const input = plainToClass(HashDataDto, req.body)
-  const decode = await decodeEventData(input)
-
-  return res.status(200).json(decode)
-}

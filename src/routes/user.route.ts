@@ -1,9 +1,11 @@
 import { Router } from 'express'
-import AsyncRouter from 'express-promise-router'
+import asyncHandler from 'express-async-handler'
 import { getUser } from '../controllers/user.controller'
 
-const router: Router = AsyncRouter()
+const router = Router()
 
-router.route('/validate-user').get(getUser)
+export function usersRoutes(): Router {
+  router.route('/validate-user').get(asyncHandler(getUser))
 
-export { router }
+  return router
+}

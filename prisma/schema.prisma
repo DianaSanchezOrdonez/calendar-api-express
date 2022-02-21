@@ -10,16 +10,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Organization {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(cuid())
+  legalName String   @unique @map(name: "legal_name")
+  user      User[]
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+
+  @@map(name: "organizations")
+}
+
 model User {
-  id           Int      @id @default(autoincrement())
-  uuid         String   @unique @default(cuid())
-  fullName     String   @map(name: "full_name")
-  email        String   @unique
-  picture      String
-  refreshToken String   @unique @map(name: "refresh_token")
-  event        Event[]
-  createdAt    DateTime @default(now()) @map(name: "created_at")
-  updatedAt    DateTime @updatedAt @map(name: "updated_at")
+  id             Int           @id @default(autoincrement())
+  uuid           String        @unique @default(cuid())
+  fullName       String        @map(name: "full_name")
+  email          String        @unique
+  picture        String
+  refreshToken   String        @unique @map(name: "refresh_token")
+  event          Event[]
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId Int?          @map("organization_id")
+  createdAt      DateTime      @default(now()) @map(name: "created_at")
+  updatedAt      DateTime      @updatedAt @map(name: "updated_at")
 
   @@map(name: "users")
 }
@@ -49,10 +62,23 @@ model Event {
   meetingFinish DateTime  @map(name: "meeting_finish")
   user          User      @relation(fields: [userId], references: [id])
   userId        Int       @map("user_id")
+  invitee       Invitee   @relation(fields: [inviteeId], references: [id])
+  inviteeId     Int       @map("invitee_id")
   eventType     EventType @relation(fields: [eventTypeId], references: [id])
   eventTypeId   Int       @map("event_type_id")
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
 
   @@map(name: "events")
+}
+
+model Invitee {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(cuid())
+  email     String   @unique
+  event     Event[]
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+
+  @@map(name: "invitees")
 }

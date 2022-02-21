@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator'
-import { BaseDto } from '../base.dto'
+import { BaseDto } from '../../base.dto'
 
 export class BusySlotsDto extends BaseDto {
   @IsNotEmpty()

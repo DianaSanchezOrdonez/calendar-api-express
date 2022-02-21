@@ -1,3 +1,0 @@
-{"level":"info","message":"test message %s","service":"user-service"}
-{"level":"error","message":"test message %s","service":"user-service"}
-{"level":"info","message":"logger testing...","service":"user-service"}

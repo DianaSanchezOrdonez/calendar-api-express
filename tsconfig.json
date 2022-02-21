@@ -3,13 +3,14 @@
     "module": "commonjs",
     "target": "es2017",
     "outDir": "dist",
-    "baseUrl": "./",
     "esModuleInterop": true,
-    "strict": false,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "resolveJsonModule": true,
     "removeComments": true,
+    "strict": true,
     // "strictNullChecks": true
-  }
+  },
+  "files": ["./global.d.ts"],
+  "include": ["prisma/**/*.ts", "src/**/*.ts"]
 }

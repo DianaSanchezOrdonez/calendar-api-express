@@ -1,19 +1,29 @@
 import { plainToClass } from 'class-transformer'
 import { Request, Response } from 'express'
-import { InsertNewEventDto } from '../dtos/requests/insert-new-event.dto'
-import { BusySlotsDto } from '../dtos/requests/free-busy-calendar.dto'
-import { getListUserEvents, inserNewEvent } from '../services/events.service'
+import { InsertNewEventDto } from '../dtos/events/requests/insert-new-event.dto'
+import { BusySlotsDto } from '../dtos/events/requests/busy-slots.dto'
+import { EventsService } from '../services/events.service'
 
-export const getBusyEventsSlots = async (req: Request, res: Response) => {
-  const input = plainToClass(BusySlotsDto, req.query)
-  const events = await getListUserEvents(input)
+export const getBusyEventsSlots = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const dto = plainToClass(BusySlotsDto, req.query)
+  await dto.isValid()
 
-  return res.status(200).send(events)
+  const result = await EventsService.getListUserEvents(dto)
+
+  res.status(200).json(result)
 }
 
-export const addNewEvent = async (req: Request, res: Response) => {
-  const input = plainToClass(InsertNewEventDto, req.body)
-  const event = await inserNewEvent(input)
+export const addNewEvent = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const dto = plainToClass(InsertNewEventDto, req.body)
+  await dto.isValid()
 
-  return res.status(200).send(event)
+  const result = await EventsService.inserEvent(dto)
+
+  res.status(201).json(result)
 }

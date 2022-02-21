@@ -1,6 +1,6 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator'
-import { EventTypeEnum } from '../../enums/event-type.enum'
-import { BaseDto } from '../base.dto'
+import { EventTypeEnum } from '../../../enums/event-type.enum'
+import { BaseDto } from '../../base.dto'
 
 export class EncodeDataDto extends BaseDto {
   @IsNotEmpty()

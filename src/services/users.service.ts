@@ -1,31 +1,30 @@
-import { User, PrismaClient } from '@prisma/client'
+import { User } from '@prisma/client'
 import { logger } from '../helpers/logger.helper'
 import { UnprocessableEntity } from 'http-errors'
+import { prisma } from '../prisma'
 
-const prisma = new PrismaClient()
+export class UsersService {
+  static async createNewUser(input: {
+    fullName: string
+    email: string
+    picture: string
+    refreshToken: string
+  }): Promise<User> {
+    try {
+      const newUser = await prisma.user.create({
+        data: {
+          ...input,
+        },
+      })
 
-export const createNewUser = async (input: {
-  fullName: string
-  email: string
-  picture: string
-  refreshToken: string
-}): Promise<User> => {
-  try {
-    const newUser = await prisma.user.create({
-      data: {
-        ...input,
-      },
-    })
-
-    return newUser
-  } catch (e) {
-    logger.error(e.message)
-    throw new UnprocessableEntity(e.message)
+      return newUser
+    } catch (e: any) {
+      logger.error(e.message)
+      throw new UnprocessableEntity(e.message)
+    }
   }
-}
 
-export const getUserByEmail = async (email: string): Promise<User> => {
-  try {
+  static async getUserByEmail(email: string): Promise<User> {
     const user = await prisma.user.findUnique({
       where: {
         email,
@@ -33,16 +32,5 @@ export const getUserByEmail = async (email: string): Promise<User> => {
     })
 
     return user
-  } catch (e) {
-    logger.error(e.message)
-    throw new UnprocessableEntity(e.message)
   }
-}
-
-const onModuleInit = async () => {
-  await prisma.$connect()
-}
-
-const onModuleDestroy = async () => {
-  await prisma.$disconnect()
 }

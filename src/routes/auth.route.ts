@@ -1,17 +1,12 @@
 import { Router } from 'express'
-import AsyncRouter from 'express-promise-router'
-import {
-  encodeData,
-  decodeData,
-  generateAuthLink,
-  signUp,
-} from '../controllers/auth.controller'
+import asyncHandler from 'express-async-handler'
+import { generateAuthLink, signUp } from '../controllers/auth.controller'
 
-const router: Router = AsyncRouter()
+const router = Router()
 
-router.route('/create-auth-link').get(generateAuthLink)
-router.route('/sign-up').post(signUp)
-router.route('/encode').post(encodeData)
-router.route('/decode').post(decodeData)
+export function authRoutes(): Router {
+  router.route('/create-auth-link').get(generateAuthLink)
+  router.route('/sign-up').post(asyncHandler(signUp))
 
-export { router }
+  return router
+}

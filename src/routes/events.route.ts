@@ -1,13 +1,15 @@
 import { Router } from 'express'
-import AsyncRouter from 'express-promise-router'
+import asyncHandler from 'express-async-handler'
 import {
   getBusyEventsSlots,
   addNewEvent,
 } from '../controllers/events.controller'
 
-const router: Router = AsyncRouter()
+const router = Router()
 
-router.route('/').get(getBusyEventsSlots)
-router.route('/').post(addNewEvent)
+export function eventsRoutes(): Router {
+  router.route('/').get(asyncHandler(getBusyEventsSlots))
+  router.route('/').post(asyncHandler(addNewEvent))
 
-export { router }
+  return router
+}
