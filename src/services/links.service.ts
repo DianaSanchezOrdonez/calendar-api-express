@@ -4,7 +4,7 @@ import { UnprocessableEntity } from 'http-errors'
 import { EncodeDataDto } from '../dtos/links/requests/endode-data.dto'
 import { HashDataDto } from '../dtos/links/requests/hash-data.dto'
 import { DecodeDataResponse } from '../dtos/links/responses/decode-data.dto'
-import { logger } from '../helpers/logger.helper'
+import { logger } from '../utils/logger'
 
 const CRYPTO_SECRET = process.env.CRYPTO_KEY || 'crypto_secret'
 

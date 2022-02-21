@@ -23,7 +23,7 @@ export const addNewEvent = async (
   const dto = plainToClass(InsertNewEventDto, req.body)
   await dto.isValid()
 
-  const result = await EventsService.inserEvent(dto)
+  const result = await EventsService.insertEvent(dto)
 
   res.status(201).json(result)
 }

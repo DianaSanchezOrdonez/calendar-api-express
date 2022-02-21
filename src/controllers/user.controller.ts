@@ -7,7 +7,7 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
   const dto = plainToClass(ValidateUserDto, req.query)
   await dto.isValid()
 
-  const result = await UsersService.getUserByEmail(dto.email)
+  const result = await UsersService.findOneByEmail(dto.email)
 
   res.status(200).json(result)
 }

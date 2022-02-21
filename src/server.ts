@@ -8,7 +8,7 @@ import express, {
 import cors from 'cors'
 import { HttpError } from 'http-errors'
 import swaggerUi from 'swagger-ui-express'
-import { swaggerDoc } from './swagger'
+import { documentation } from './swagger'
 import { router } from './router'
 import { plainToClass } from 'class-transformer'
 import { HttpErrorDto } from './dtos/http-error.dto'
@@ -36,7 +36,7 @@ function errorHandler(
   res.json(plainToClass(HttpErrorDto, err))
 }
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc))
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(documentation))
 
 app.use('/', router(app))
 app.use(errorHandler)

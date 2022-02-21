@@ -9,8 +9,15 @@
     "resolveJsonModule": true,
     "removeComments": true,
     "strict": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
     // "strictNullChecks": true
   },
-  "files": ["./global.d.ts"],
-  "include": ["prisma/**/*.ts", "src/**/*.ts"]
+  "files": [
+    "./global.d.ts"
+  ],
+  "include": [
+    "prisma/**/*.ts",
+    "src/**/*.ts"
+  ]
 }

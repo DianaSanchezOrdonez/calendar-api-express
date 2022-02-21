@@ -1,0 +1,158 @@
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "Calendar API"
+  description: "This is the documentation for the Rest API that created events using Googleapis and Express"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+tags:
+  - name: "general"
+    description: "generics routes for the server"
+  - name: "auth"
+  - name: "users"
+  - name: "events"
+  - name: "links"
+servers:
+  - url: "/api/v1"
+    description: "version 1"
+paths:
+  /auth/create-auth-link:
+    post:
+      tags:
+        - "auth"
+      responses:
+        "200":
+          description: "Ok"
+      deprecated: true
+  /auth/sign-up:
+    post:
+      tags:
+        - "auth"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                code:
+                  type: "string"
+
+      responses:
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /users/validate-user:
+    get:
+      tags:
+        - "users"
+      parameters:
+        - name: "email"
+          in: "query"
+          description: "The email for the user"
+          required: true
+          schema:
+            type: "string"
+
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /events:
+    get:
+      tags:
+        - "events"
+      parameters:
+        - name: "email"
+          in: "query"
+          description: "The email for the user"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarEvents"
+
+    post:
+      tags:
+        - "events"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                type: "object"
+                properties:
+                  timezone:
+                    type: "string"
+                  eventName:
+                    type: "string"
+                  startDatetime:
+                    type: "string"
+                    format: "date-time"
+                  inviterEmail:
+                    type: "string"
+                  inviteeEmail:
+                    type: "string"
+
+      responses:
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+
+components:
+  schemas:
+    User:
+      type: "object"
+      properties:
+        uuid:
+          type: "string"
+        fullName:
+          type: "string"
+        email:
+          type: "string"
+        picture:
+          type: "string"
+        refreshToken:
+          type: "string"
+        organizationId:
+          type: "string"
+        createdAt:
+          type: "string"
+    CalendarEvents:
+      type: "object"
+      properties:
+        data:
+          type: "object"
+          properties:
+            calendars:
+              type: "object"
+              properties:
+                primary:
+                  type: "object"
+                  properties:
+                    busy:
+                      type: "array"
+                      items:
+                        type: "object"
+                        properties:
+                          start:
+                            type: "string"
+                            format: "date-time"
+                          end:
+                            type: "string"
+                            format: "date-time"
