@@ -16,6 +16,8 @@ export class EvenTypeFactory extends AbstractFactory<EventType> {
         eventLink: input.eventLink ?? faker.internet.url(),
         eventColor: input.eventColor ?? faker.internet.color(),
         location: input.location ?? faker.address.streetAddress(),
+        eventDuration:
+          input.eventDuration ?? faker.datatype.number({ min: 15, max: 60 }),
       },
     })
   }

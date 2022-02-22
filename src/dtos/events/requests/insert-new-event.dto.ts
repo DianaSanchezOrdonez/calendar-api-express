@@ -1,11 +1,9 @@
 import {
   IsDateString,
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsString,
 } from 'class-validator'
-import { EventTypeEnum } from '../../../enums/event-type.enum'
 import { BaseDto } from '../../base.dto'
 
 export class InsertNewEventDto extends BaseDto {
@@ -15,7 +13,6 @@ export class InsertNewEventDto extends BaseDto {
 
   @IsNotEmpty()
   @IsString()
-  @IsEnum(EventTypeEnum)
   readonly eventName: string
 
   @IsNotEmpty()

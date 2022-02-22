@@ -19,8 +19,8 @@ export class EventFactory extends AbstractFactory<Event> {
         timeZone: input.timeZone ?? faker.address.timeZone(),
         inviteeEmail: input.inviteeEmail ?? faker.internet.email(),
         eventType: input.eventType,
-        user: input.user,
-        invitee: input.invitee,
+        // user: input.user,
+        // invitee: input.invitee,
       },
     })
   }

@@ -59,7 +59,7 @@ describe('UserService', () => {
     })
   })
 
-  describe('findOneByEmail', () => {
+  describe('findOne', () => {
     let user: User
 
     beforeAll(async () => {
@@ -68,12 +68,12 @@ describe('UserService', () => {
 
     it('should throw an error if the user does not exist', async () => {
       await expect(
-        UsersService.findOneByEmail(faker.internet.email()),
+        UsersService.findOne({ email: faker.internet.email() }),
       ).rejects.toThrowError(new NotFound('No User found'))
     })
 
     it('should return the user', async () => {
-      const result = await UsersService.findOneByEmail(user.email)
+      const result = await UsersService.findOne({ email: user.email })
 
       expect(result).toHaveProperty('uuid', user.uuid)
     })

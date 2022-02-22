@@ -38,16 +38,17 @@ model User {
 }
 
 model EventType {
-  id          Int      @id @default(autoincrement())
-  uuid        String   @unique @default(cuid())
-  name        String   @unique
-  location    String
-  description String?
-  eventLink   String   @map(name: "event_link")
-  eventColor  String   @map(name: "event_color")
-  event       Event[]
-  createdAt   DateTime @default(now()) @map(name: "created_at")
-  updatedAt   DateTime @updatedAt @map(name: "updated_at")
+  id            Int      @id @default(autoincrement())
+  uuid          String   @unique @default(cuid())
+  name          String   @unique
+  location      String
+  description   String?
+  eventLink     String   @map(name: "event_link")
+  eventColor    String   @map(name: "event_color")
+  eventDuration Int      @map(name: "event_duration")
+  event         Event[]
+  createdAt     DateTime @default(now()) @map(name: "created_at")
+  updatedAt     DateTime @updatedAt @map(name: "updated_at")
 
   @@map(name: "event_types")
 }

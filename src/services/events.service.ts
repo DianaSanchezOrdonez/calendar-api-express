@@ -1,5 +1,4 @@
 import { addMinutes, addMonths } from 'date-fns'
-import { Event } from '@prisma/client'
 import { UnprocessableEntity, BadRequest } from 'http-errors'
 import { logger } from '../utils/logger'
 import { oAuth2Client } from '../utils/google-oauth'
@@ -10,13 +9,16 @@ import { InsertNewEventDto } from '../dtos/events/requests/insert-new-event.dto'
 import { EventsTypesService } from './events-types.service'
 import { prisma } from '../prisma'
 import { GoogleService } from './google.service'
+import { CreateEventDto } from '../dtos/events/requests/create-event.dto'
+import { EventIsertedDto } from '../dtos/events/responses/event-inserted.dto'
+import { plainToClass } from 'class-transformer'
 
 export class EventsService {
   static async getListUserEvents(
     input: BusySlotsDto,
   ): Promise<FreeBusyResponseDto> {
     const { email, timeZone } = input
-    const user = await UsersService.findOneByEmail(email)
+    const user = await UsersService.findOne({ email })
 
     try {
       oAuth2Client.setCredentials({
@@ -37,28 +39,20 @@ export class EventsService {
     }
   }
 
-  static async create(input: {
-    eventName: string
-    startDatetime: Date
-    endDatetime: Date
-    timeZone: string
-    inviteeEmail: string
-    inviterEmail: string
-    meetingLink: string
-  }): Promise<Event> {
+  static async create(input: CreateEventDto): Promise<EventIsertedDto> {
     try {
-      const { eventName, startDatetime, endDatetime, inviterEmail, ...rest } =
+      const { eventTypeUUID, userUUID, startDatetime, endDatetime, ...rest } =
         input
       const eventCreated = await prisma.event.create({
         data: {
           eventType: {
             connect: {
-              name: eventName,
+              uuid: eventTypeUUID,
             },
           },
           user: {
             connect: {
-              email: inviterEmail,
+              uuid: userUUID,
             },
           },
           invitee: {
@@ -77,27 +71,27 @@ export class EventsService {
         },
       })
 
-      return eventCreated
+      return plainToClass(EventIsertedDto, eventCreated)
     } catch (e: any) {
       logger.error(e.message)
       throw new UnprocessableEntity(e.message)
     }
   }
 
-  static async insertEvent(input: InsertNewEventDto): Promise<Event> {
+  static async insertEvent(input: InsertNewEventDto): Promise<EventIsertedDto> {
     const { eventName, timeZone, startDatetime, inviterEmail, inviteeEmail } =
       input
 
-    const user = await UsersService.findOneByEmail(inviterEmail)
+    const user = await UsersService.findOne({ email: inviterEmail })
 
-    const eventType = await EventsTypesService.findOneByName(eventName)
+    const eventType = await EventsTypesService.findOne({ name: eventName })
 
     oAuth2Client.setCredentials({
       refresh_token: user.refreshToken,
     })
 
     const eventStartTime = new Date(startDatetime)
-    const endDatetime = addMinutes(eventStartTime, 45)
+    const endDatetime = addMinutes(eventStartTime, eventType.eventDuration)
 
     const { data } = await GoogleService.getBusySlots({
       eventStartTime,
@@ -117,12 +111,12 @@ export class EventsService {
 
       return this.create({
         meetingLink: data.hangoutLink,
-        eventName,
+        eventTypeUUID: eventType.uuid,
         startDatetime: eventStartTime,
         endDatetime,
         timeZone,
         inviteeEmail,
-        inviterEmail,
+        userUUID: user.uuid,
       })
     } else {
       throw new BadRequest('Busy Event Slot')

@@ -8,6 +8,7 @@ export default async (prisma: PrismaClient) => {
         eventLink: '',
         eventColor: '1',
         name: 'Initial Interview',
+        eventDuration: 45,
       },
       update: {},
       where: {
@@ -20,6 +21,7 @@ export default async (prisma: PrismaClient) => {
         eventLink: '',
         eventColor: '2',
         name: 'Challenge Review',
+        eventDuration: 45,
       },
       update: {},
       where: {
@@ -32,6 +34,7 @@ export default async (prisma: PrismaClient) => {
         eventLink: '',
         eventColor: '3',
         name: 'Final Interview',
+        eventDuration: 45,
       },
       update: {},
       where: {

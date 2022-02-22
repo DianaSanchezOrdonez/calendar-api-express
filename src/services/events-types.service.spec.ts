@@ -23,7 +23,7 @@ describe('EventsTypesService', () => {
     await prisma.$disconnect()
   })
 
-  describe('findOneByName', () => {
+  describe('findOne', () => {
     let eventType: EventType
 
     beforeAll(async () => {
@@ -32,12 +32,12 @@ describe('EventsTypesService', () => {
 
     it('should throw an error if the event type does not exist', async () => {
       await expect(
-        EventsTypesService.findOneByName(faker.name.title()),
+        EventsTypesService.findOne({ name: faker.name.title() }),
       ).rejects.toThrowError(new NotFound('No EventType found'))
     })
 
     it('should return the event type', async () => {
-      const result = await EventsTypesService.findOneByName(eventType.name)
+      const result = await EventsTypesService.findOne({ name: eventType.name })
 
       expect(result).toHaveProperty('uuid', eventType.uuid)
     })

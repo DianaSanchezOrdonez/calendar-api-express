@@ -10,6 +10,9 @@ ALTER TABLE "events" ADD COLUMN     "invitee_id" INTEGER NOT NULL;
 -- AlterTable
 ALTER TABLE "users" ADD COLUMN     "organization_id" INTEGER;
 
+-- AlterTable
+ALTER TABLE "event_types" ADD COLUMN     "event_duration" INTEGER;
+
 -- CreateTable
 CREATE TABLE "organizations" (
     "id" SERIAL NOT NULL,
