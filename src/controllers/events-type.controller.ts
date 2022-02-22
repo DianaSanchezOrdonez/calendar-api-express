@@ -10,7 +10,7 @@ export const getEventType = async (
   const dto = plainToClass(GetEventTypeDto, req.query)
   await dto.isValid()
 
-  const result = await EventsTypesService.findOneByName(dto.eventName)
+  const result = await EventsTypesService.findOne({ name: dto.eventName })
 
   res.status(200).json(result)
 }

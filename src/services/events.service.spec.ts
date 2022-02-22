@@ -5,7 +5,7 @@ import { NotFound } from 'http-errors'
 import { CreateEventDto } from '../dtos/events/requests/create-event.dto'
 import { InsertNewEventDto } from '../dtos/events/requests/insert-new-event.dto'
 import { clearDatabase, prisma } from '../prisma'
-import { EvenTypeFactory } from '../utils/factories/events-types.factory'
+import { EventTypeFactory } from '../utils/factories/events-types.factory'
 import { EventFactory } from '../utils/factories/events.factory'
 import { UserFactory } from '../utils/factories/user.factory'
 import { EventsService } from './events.service'
@@ -14,12 +14,12 @@ jest.spyOn(console, 'error').mockImplementation(jest.fn())
 
 describe('EventService', () => {
   let eventFactory: EventFactory
-  let eventTypeFactory: EvenTypeFactory
+  let eventTypeFactory: EventTypeFactory
   let userFactory: UserFactory
 
   beforeAll(() => {
     eventFactory = new EventFactory(prisma)
-    eventTypeFactory = new EvenTypeFactory(prisma)
+    eventTypeFactory = new EventTypeFactory(prisma)
     userFactory = new UserFactory(prisma)
   })
 

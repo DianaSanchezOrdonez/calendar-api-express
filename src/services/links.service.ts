@@ -4,6 +4,7 @@ import { UnprocessableEntity } from 'http-errors'
 import { EncodeDataDto } from '../dtos/links/requests/endode-data.dto'
 import { HashDataDto } from '../dtos/links/requests/hash-data.dto'
 import { DecodeDataResponse } from '../dtos/links/responses/decode-data.dto'
+import { prisma } from '../prisma'
 import { logger } from '../utils/logger'
 import { EventsTypesService } from './events-types.service'
 import { InviteesService } from './invitees.service'
@@ -29,6 +30,13 @@ export class LinksService {
         CRYPTO_SECRET,
       ).toString()
 
+      await prisma.blacklist.create({
+        data: {
+          hash,
+          updatedAt: null,
+        },
+      })
+
       return `${process.env.FRONTEND_LINK}?hash=${hash}`
     } catch (e: any) {
       logger.error(e.message)
@@ -39,13 +47,35 @@ export class LinksService {
   static async decodeEventData(
     input: HashDataDto,
   ): Promise<DecodeDataResponse> {
-    try {
-      const data = AES.decrypt(input.hash, CRYPTO_SECRET).toString(enc.Utf8)
+    const unusedHash = await prisma.blacklist.findFirst({
+      where: {
+        hash: input.hash,
+        updatedAt: null,
+      },
+      select: { id: true },
+      rejectOnNotFound: false,
+    })
 
-      return plainToClass(DecodeDataResponse, JSON.parse(data))
-    } catch (e: any) {
-      logger.error(e.message)
-      throw new UnprocessableEntity(e.message)
+    if (unusedHash) {
+      try {
+        const data = AES.decrypt(input.hash, CRYPTO_SECRET).toString(enc.Utf8)
+
+        await prisma.blacklist.update({
+          data: {
+            updatedAt: new Date(),
+          },
+          where: {
+            hash: input.hash,
+          },
+        })
+
+        return plainToClass(DecodeDataResponse, data)
+      } catch (e: any) {
+        logger.error(e.message)
+        throw new UnprocessableEntity(e.message)
+      }
+    } else {
+      throw new UnprocessableEntity('invalid hash')
     }
   }
 }

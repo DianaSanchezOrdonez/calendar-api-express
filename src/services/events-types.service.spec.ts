@@ -2,16 +2,16 @@ import faker from '@faker-js/faker'
 import { EventType } from '@prisma/client'
 import { NotFound } from 'http-errors'
 import { clearDatabase, prisma } from '../prisma'
-import { EvenTypeFactory } from '../utils/factories/events-types.factory'
+import { EventTypeFactory } from '../utils/factories/events-types.factory'
 import { EventsTypesService } from './events-types.service'
 
 jest.spyOn(console, 'error').mockImplementation(jest.fn())
 
 describe('EventsTypesService', () => {
-  let eventTypeFactory: EvenTypeFactory
+  let eventTypeFactory: EventTypeFactory
 
   beforeAll(() => {
-    eventTypeFactory = new EvenTypeFactory(prisma)
+    eventTypeFactory = new EventTypeFactory(prisma)
   })
 
   beforeEach(() => {

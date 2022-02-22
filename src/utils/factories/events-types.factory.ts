@@ -4,7 +4,7 @@ import { AbstractFactory } from './abstract.factory'
 
 type EventTypeInput = Partial<Prisma.EventTypeCreateInput>
 
-export class EvenTypeFactory extends AbstractFactory<EventType> {
+export class EventTypeFactory extends AbstractFactory<EventType> {
   constructor(protected readonly prismaClient: PrismaClient) {
     super()
   }

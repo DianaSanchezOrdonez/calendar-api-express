@@ -7,10 +7,9 @@ info:
     name: "MIT"
     url: "https://opensource.org/licenses/MIT"
 tags:
-  - name: "general"
-    description: "generics routes for the server"
   - name: "auth"
   - name: "users"
+  - name: "events-types"
   - name: "events"
   - name: "links"
 servers:
@@ -64,6 +63,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+      "404":
+        description: "Not Found"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+  /events-types:
+    get:
+      tags:
+        - "events-types"
+      parameters:
+        - name: "eventName"
+          in: "query"
+          description: "The name for the event type"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventType"
+        "404":
+        description: "Not Found"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
   /events:
     get:
       tags:
@@ -113,6 +142,55 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Event"
+  /links/encode:
+    post:
+      tags:
+        - "links"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                type: "object"
+                properties:
+                  inviterUUID:
+                    type: "string"
+                  inviteeUUID:
+                    type: "string"
+                  eventTypeUUID:
+                    type: "string"
+
+      responses:
+        "200":
+          description: "Ok"
+        "404":
+        description: "Not Found"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+  /links/decode:
+    post:
+      tags:
+        - "links"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                type: "object"
+                properties:
+                  hash:
+                    type: "string"
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecodeData"
 
 components:
   schemas:
@@ -133,6 +211,31 @@ components:
           type: "string"
         createdAt:
           type: "string"
+    EventType:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        uuid:
+          type: "string"
+        name:
+          type: "string"
+        location:
+          type: "string"
+        description:
+          type: "string"
+        eventLink:
+          type: "string"
+        eventColor:
+          type: "string"
+        eventDuration:
+          type: "number"
+        createdAt:
+          type: "string"
+          format: "date-time"
+        updatedAt:
+          type: "string"
+          format: "date-time"
     CalendarEvents:
       type: "object"
       properties:
@@ -156,3 +259,30 @@ components:
                           end:
                             type: "string"
                             format: "date-time"
+    DecodeData:
+      type: "object"
+      properties:
+        inviterUUID:
+          type: "string"
+        inviteeUUID:
+          type: "string"
+        eventTypeUUID:
+          type: "string"
+    Error:
+      type: "object"
+      properties:
+        message:
+          type: "string"
+        statusCode:
+          type: "integer"
+        errors:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              property:
+                type: "string"
+              constraint:
+                type: "array"
+                items:
+                  type: "string"

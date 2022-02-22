@@ -83,3 +83,13 @@ model Invitee {
 
   @@map(name: "invitees")
 }
+
+model Blacklist {
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique @default(cuid())
+  hash      String    @unique
+  createdAt DateTime  @default(now()) @map(name: "created_at")
+  updatedAt DateTime? @updatedAt @map(name: "updated_at")
+
+  @@map(name: "blacklists")
+}
