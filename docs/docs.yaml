@@ -63,7 +63,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-      "404":
+        "404":
         description: "Not Found"
         content:
           application/json:
@@ -100,7 +100,13 @@ paths:
       parameters:
         - name: "email"
           in: "query"
-          description: "The email for the user"
+          description: "The user's email"
+          required: true
+          schema:
+            type: "string"
+        - name: "timeZone"
+          in: "query"
+          description: "The user's timeZone"
           required: true
           schema:
             type: "string"
@@ -120,20 +126,7 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                type: "object"
-                properties:
-                  timezone:
-                    type: "string"
-                  eventName:
-                    type: "string"
-                  startDatetime:
-                    type: "string"
-                    format: "date-time"
-                  inviterEmail:
-                    type: "string"
-                  inviteeEmail:
-                    type: "string"
+              $ref: "#/components/schemas/CreateEvent"
 
       responses:
         "201":
@@ -151,16 +144,7 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                type: "object"
-                properties:
-                  inviterUUID:
-                    type: "string"
-                  inviteeUUID:
-                    type: "string"
-                  eventTypeUUID:
-                    type: "string"
-
+              $ref: "#/components/schemas/EncodeData"
       responses:
         "200":
           description: "Ok"
@@ -180,17 +164,15 @@ paths:
           application/json:
             schema:
               properties:
-                type: "object"
-                properties:
-                  hash:
-                    type: "string"
+                hash:
+                  type: "string"
       responses:
         "200":
           description: "Ok"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DecodeData"
+                $ref: "#/components/schemas/EncodeData"
 
 components:
   schemas:
@@ -259,7 +241,46 @@ components:
                           end:
                             type: "string"
                             format: "date-time"
-    DecodeData:
+    CreateEvent:
+      type: "object"
+      properties:
+        timezone:
+          type: "string"
+        eventName:
+          type: "string"
+        startDatetime:
+          type: "string"
+          format: "date-time"
+        inviterEmail:
+          type: "string"
+        inviteeEmail:
+          type: "string"
+    Event:
+      type: "object"
+      properties:
+        uuid:
+          type: "string"
+        inviteeEmail:
+          type: "string"
+        meetingLink:
+          type: "string"
+        timeZone:
+          type: "string"
+        meetingStart:
+          type: "string"
+          format: "date-time"
+        meetingFinish:
+          type: "string"
+          format: "date-time"
+        userId:
+          type: "number"
+        inviteeId:
+          type: "number"
+        eventTypeId:
+          type: "number"
+        createdAt:
+          type: "string"
+    EncodeData:
       type: "object"
       properties:
         inviterUUID:
