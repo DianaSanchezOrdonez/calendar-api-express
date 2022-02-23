@@ -1,5 +1,6 @@
 export class DecodeDataResponse {
-  readonly inviterUUID: string
-  readonly inviteeUUID: string
-  readonly eventTypeUUID: string
+  readonly candidateEmail: string
+  readonly claimerEmail: string
+  readonly eventName: string
+  readonly duration: number
 }

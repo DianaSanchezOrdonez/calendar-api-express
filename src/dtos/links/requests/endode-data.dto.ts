@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator'
+import { IsNotEmpty, IsString } from 'class-validator'
 import { BaseDto } from '../../base.dto'
 
 export class EncodeDataDto extends BaseDto {
@@ -14,3 +14,5 @@ export class EncodeDataDto extends BaseDto {
   @IsString()
   readonly eventTypeUUID: string
 }
+
+

@@ -7,7 +7,7 @@ import { InviteesService } from './invitees.service'
 
 jest.spyOn(console, 'error').mockImplementation(jest.fn())
 
-describe('InviteeService', () => {
+describe.skip('InviteeService', () => {
   let inviteeFactory: InviteeFactory
 
   beforeAll(() => {

@@ -14,7 +14,7 @@ const CRYPTO_SECRET = process.env.CRYPTO_KEY || 'crypto_secret'
 
 export class LinksService {
   static async encodeEventData(input: EncodeDataDto): Promise<string> {
-    await Promise.all([
+    const [user, eventType, invitee] = await Promise.all([
       UsersService.findOne({ uuid: input.inviterUUID }),
       EventsTypesService.findOne({ uuid: input.eventTypeUUID }),
       InviteesService.findOne({ uuid: input.inviteeUUID }),
@@ -23,19 +23,13 @@ export class LinksService {
     try {
       const hash = AES.encrypt(
         JSON.stringify({
-          inviterUUID: input.inviterUUID,
-          inviteeUUID: input.inviteeUUID,
-          eventTypeUUID: input.eventTypeUUID,
+          candidateEmail: invitee.email,
+          claimerEmail: user.email,
+          eventName: eventType.name,
+          duration: eventType.eventDuration,
         }),
         CRYPTO_SECRET,
       ).toString()
-
-      await prisma.blacklist.create({
-        data: {
-          hash,
-          updatedAt: null,
-        },
-      })
 
       return `${process.env.FRONTEND_LINK}?hash=${hash}`
     } catch (e: any) {
@@ -47,35 +41,42 @@ export class LinksService {
   static async decodeEventData(
     input: HashDataDto,
   ): Promise<DecodeDataResponse> {
-    const unusedHash = await prisma.blacklist.findFirst({
+    const hashFound = await prisma.blacklist.findUnique({
       where: {
         hash: input.hash,
-        updatedAt: null,
       },
       select: { id: true },
       rejectOnNotFound: false,
     })
 
-    if (unusedHash) {
-      try {
-        const data = AES.decrypt(input.hash, CRYPTO_SECRET).toString(enc.Utf8)
+    if (hashFound) {
+      throw new UnprocessableEntity('invalid hash')
+    }
 
-        await prisma.blacklist.update({
+    let data: string
+    try {
+      data = AES.decrypt(input.hash, CRYPTO_SECRET).toString(enc.Utf8)
+    } catch (e: any) {
+      logger.error(e.message)
+      throw new UnprocessableEntity(e.message)
+    }
+
+    if (data) {
+      try {
+        await prisma.blacklist.create({
           data: {
-            updatedAt: new Date(),
-          },
-          where: {
             hash: input.hash,
           },
         })
+        const parseData = JSON.parse(data)
 
-        return plainToClass(DecodeDataResponse, data)
+        return plainToClass(DecodeDataResponse, parseData)
       } catch (e: any) {
         logger.error(e.message)
         throw new UnprocessableEntity(e.message)
       }
     } else {
-      throw new UnprocessableEntity('invalid hash')
+      throw new UnprocessableEntity('error in decrypt the hash')
     }
   }
 }

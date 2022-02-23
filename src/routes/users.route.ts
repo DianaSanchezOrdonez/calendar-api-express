@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
-import { getUser } from '../controllers/user.controller'
+import { getUser } from '../controllers/users.controller'
 
 const router = Router()
 

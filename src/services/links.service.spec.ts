@@ -13,7 +13,7 @@ import { LinksService } from './links.service'
 
 jest.spyOn(console, 'error').mockImplementation(jest.fn())
 
-describe.only('LinksService', () => {
+describe.skip('LinksService', () => {
   let blacklistFactory: BlacklistFactory
   let userFactory: UserFactory
   let eventTypeFactory: EventTypeFactory
@@ -98,43 +98,35 @@ describe.only('LinksService', () => {
 
   describe('decodeEventData', () => {
     let blacklist: Blacklist
-    let blacklistUpdated: Blacklist
+    let user: User
+    let eventType: EventType
+    let invitee: Invitee
 
     beforeAll(async () => {
       blacklist = await blacklistFactory.make()
-      blacklistUpdated = await blacklistFactory.make({ updatedAt: new Date() })
+      user = await userFactory.make()
+      eventType = await eventTypeFactory.make()
+      invitee = await inviteeFactory.make()
     })
 
-    it('should throw an error if the hash does not exist', async () => {
+    it('should throw an error if the hash exists into blacklist', async () => {
+      const data = plainToClass(HashDataDto, {
+        hash: blacklist.hash,
+      })
+
+      await expect(LinksService.decodeEventData(data)).rejects.toThrowError(
+        new UnprocessableEntity('invalid hash'),
+      )
+    })
+
+    it('should throw an error if the hash cannot decrypt', async () => {
       const data = plainToClass(HashDataDto, {
         hash: faker.datatype.string(),
       })
 
       await expect(LinksService.decodeEventData(data)).rejects.toThrowError(
-        new UnprocessableEntity('invalid hash'),
+        new UnprocessableEntity('error in decrypt the hash'),
       )
-    })
-
-    it('should throw an error if the hash already taken', async () => {
-      const data = plainToClass(HashDataDto, {
-        hash: blacklistUpdated.hash,
-      })
-
-      await expect(LinksService.decodeEventData(data)).rejects.toThrowError(
-        new UnprocessableEntity('invalid hash'),
-      )
-    })
-
-    it('should return the data decoded', async () => {
-      const data = plainToClass(HashDataDto, {
-        hash: blacklist.hash,
-      })
-
-      const result = await LinksService.decodeEventData(data)
-
-      expect(result).toHaveProperty('inviterUUID', result.inviterUUID)
-      expect(result).toHaveProperty('inviteeUUID', result.inviteeUUID)
-      expect(result).toHaveProperty('eventTypeUUID', result.eventTypeUUID)
     })
   })
 })

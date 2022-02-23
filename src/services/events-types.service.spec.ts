@@ -7,7 +7,7 @@ import { EventsTypesService } from './events-types.service'
 
 jest.spyOn(console, 'error').mockImplementation(jest.fn())
 
-describe('EventsTypesService', () => {
+describe.skip('EventsTypesService', () => {
   let eventTypeFactory: EventTypeFactory
 
   beforeAll(() => {

@@ -1,33 +1,28 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
-  version: "1.0.0"
-  title: "Calendar API"
-  description: "This is the documentation for the Rest API that created events using Googleapis and Express"
+  version: 1.0.0
+  title: Calendar API
+  description:
+    This is the documentation for the Rest API that created events using
+    Googleapis and Express
   license:
-    name: "MIT"
-    url: "https://opensource.org/licenses/MIT"
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 tags:
-  - name: "auth"
-  - name: "users"
-  - name: "events-types"
-  - name: "events"
-  - name: "links"
+  - name: auth
+  - name: users
+  - name: invitees
+  - name: events-types
+  - name: events
+  - name: links
 servers:
-  - url: "/api/v1"
-    description: "version 1"
+  - url: /api/v1
+    description: version 1
 paths:
-  /auth/create-auth-link:
-    post:
-      tags:
-        - "auth"
-      responses:
-        "200":
-          description: "Ok"
-      deprecated: true
   /auth/sign-up:
     post:
       tags:
-        - "auth"
+        - auth
       requestBody:
         required: true
         content:
@@ -35,110 +30,154 @@ paths:
             schema:
               properties:
                 code:
-                  type: "string"
-
+                  type: string
       responses:
         "201":
-          description: "Created"
+          description: Created
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /users/validate-user:
     get:
       tags:
-        - "users"
+        - users
       parameters:
-        - name: "email"
-          in: "query"
-          description: "The email for the user"
+        - name: email
+          in: query
+          description: The email for the user
           required: true
           schema:
-            type: "string"
-
+            type: string
       responses:
         "200":
-          description: "Ok"
+          description: Ok
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
         "404":
-        description: "Not Found"
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Error"
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /invitees:
+    get:
+      tags:
+        - invitees
+      parameters:
+        - name: email
+          in: query
+          description: The email for the invitee
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invitee"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /events-types:
     get:
       tags:
-        - "events-types"
+        - events-types
       parameters:
-        - name: "eventName"
-          in: "query"
-          description: "The name for the event type"
+        - name: eventName
+          in: query
+          description: The name for the event type
           required: true
           schema:
-            type: "string"
+            type: string
       responses:
         "200":
-          description: "Ok"
+          description: Ok
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/EventType"
         "404":
-        description: "Not Found"
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Error"
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /events:
     get:
       tags:
-        - "events"
+        - events
       parameters:
-        - name: "email"
-          in: "query"
-          description: "The user's email"
+        - name: email
+          in: query
+          description: The user's email
           required: true
           schema:
-            type: "string"
-        - name: "timeZone"
-          in: "query"
-          description: "The user's timeZone"
+            type: string
+        - name: timeZone
+          in: query
+          description: The user's timeZone
           required: true
           schema:
-            type: "string"
+            type: string
       responses:
         "200":
-          description: "Ok"
+          description: Ok
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/CalendarEvents"
-
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       tags:
-        - "events"
+        - events
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/CreateEvent"
-
       responses:
         "201":
-          description: "Created"
+          description: Created
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Event"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /links/encode:
     post:
       tags:
-        - "links"
+        - links
       requestBody:
         required: true
         content:
@@ -147,17 +186,21 @@ paths:
               $ref: "#/components/schemas/EncodeData"
       responses:
         "200":
-          description: "Ok"
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: string
         "404":
-        description: "Not Found"
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Error"
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /links/decode:
     post:
       tags:
-        - "links"
+        - links
       requestBody:
         required: true
         content:
@@ -165,145 +208,176 @@ paths:
             schema:
               properties:
                 hash:
-                  type: "string"
+                  type: string
       responses:
         "200":
-          description: "Ok"
+          description: Ok
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/EncodeData"
-
+                $ref: "#/components/schemas/DecodeData"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     User:
-      type: "object"
+      type: object
       properties:
         uuid:
-          type: "string"
+          type: string
         fullName:
-          type: "string"
+          type: string
         email:
-          type: "string"
+          type: string
         picture:
-          type: "string"
+          type: string
         refreshToken:
-          type: "string"
+          type: string
         organizationId:
-          type: "string"
+          type: string
         createdAt:
-          type: "string"
-    EventType:
-      type: "object"
+          type: string
+    Invitee:
+      type: object
       properties:
         id:
-          type: "string"
+          type: number
         uuid:
-          type: "string"
-        name:
-          type: "string"
-        location:
-          type: "string"
-        description:
-          type: "string"
-        eventLink:
-          type: "string"
-        eventColor:
-          type: "string"
-        eventDuration:
-          type: "number"
+          type: string
+        email:
+          type: string
         createdAt:
-          type: "string"
-          format: "date-time"
+          type: string
+          format: date-time
         updatedAt:
-          type: "string"
-          format: "date-time"
+          type: string
+          format: date-time
+    EventType:
+      type: object
+      properties:
+        id:
+          type: string
+        uuid:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+        eventLink:
+          type: string
+        eventColor:
+          type: string
+        eventDuration:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     CalendarEvents:
-      type: "object"
+      type: object
       properties:
         data:
-          type: "object"
+          type: object
           properties:
             calendars:
-              type: "object"
+              type: object
               properties:
                 primary:
-                  type: "object"
+                  type: object
                   properties:
                     busy:
-                      type: "array"
+                      type: array
                       items:
-                        type: "object"
+                        type: object
                         properties:
                           start:
-                            type: "string"
-                            format: "date-time"
+                            type: string
+                            format: date-time
                           end:
-                            type: "string"
-                            format: "date-time"
+                            type: string
+                            format: date-time
     CreateEvent:
-      type: "object"
+      type: object
       properties:
-        timezone:
-          type: "string"
+        timeZone:
+          type: string
         eventName:
-          type: "string"
+          type: string
         startDatetime:
-          type: "string"
-          format: "date-time"
+          type: string
+          format: date-time
         inviterEmail:
-          type: "string"
+          type: string
         inviteeEmail:
-          type: "string"
+          type: string
     Event:
-      type: "object"
+      type: object
       properties:
         uuid:
-          type: "string"
+          type: string
         inviteeEmail:
-          type: "string"
+          type: string
         meetingLink:
-          type: "string"
+          type: string
         timeZone:
-          type: "string"
+          type: string
         meetingStart:
-          type: "string"
-          format: "date-time"
+          type: string
+          format: date-time
         meetingFinish:
-          type: "string"
-          format: "date-time"
+          type: string
+          format: date-time
         userId:
-          type: "number"
+          type: number
         inviteeId:
-          type: "number"
+          type: number
         eventTypeId:
-          type: "number"
+          type: number
         createdAt:
-          type: "string"
+          type: string
     EncodeData:
-      type: "object"
+      type: object
       properties:
         inviterUUID:
-          type: "string"
+          type: string
         inviteeUUID:
-          type: "string"
+          type: string
         eventTypeUUID:
-          type: "string"
+          type: string
+    DecodeData:
+      type: object
+      properties:
+        candidateEmail:
+          type: string
+        claimerEmail:
+          type: string
+        eventName:
+          type: string
+        duration:
+          type: number
     Error:
-      type: "object"
+      type: object
       properties:
         message:
-          type: "string"
+          type: string
         statusCode:
-          type: "integer"
+          type: integer
         errors:
-          type: "array"
+          type: array
           items:
-            type: "object"
+            type: object
             properties:
               property:
-                type: "string"
+                type: string
               constraint:
-                type: "array"
+                type: array
                 items:
-                  type: "string"
+                  type: string

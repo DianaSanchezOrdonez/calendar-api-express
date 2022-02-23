@@ -13,7 +13,6 @@ export class BlacklistFactory extends AbstractFactory<Blacklist> {
       data: {
         ...input,
         hash: input.hash ?? faker.datatype.string(),
-        updatedAt: input.updatedAt ?? null,
       },
     })
   }
