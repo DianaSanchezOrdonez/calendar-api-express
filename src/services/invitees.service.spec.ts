@@ -3,11 +3,12 @@ import { Invitee } from '@prisma/client'
 import { NotFound, UnprocessableEntity } from 'http-errors'
 import { clearDatabase, prisma } from '../prisma'
 import { InviteeFactory } from '../utils/factories/invitee.factory'
+import { logger } from '../utils/logger'
 import { InviteesService } from './invitees.service'
 
-jest.spyOn(console, 'error').mockImplementation(jest.fn())
+jest.spyOn(logger, 'error').mockImplementation(jest.fn())
 
-describe.skip('InviteeService', () => {
+describe('InviteeService', () => {
   let inviteeFactory: InviteeFactory
 
   beforeAll(() => {

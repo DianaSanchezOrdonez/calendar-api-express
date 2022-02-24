@@ -9,11 +9,12 @@ import { EventTypeFactory } from '../utils/factories/events-types.factory'
 import { InviteeFactory } from '../utils/factories/invitee.factory'
 import { BlacklistFactory } from '../utils/factories/links.factory'
 import { UserFactory } from '../utils/factories/user.factory'
+import { logger } from '../utils/logger'
 import { LinksService } from './links.service'
 
-jest.spyOn(console, 'error').mockImplementation(jest.fn())
+jest.spyOn(logger, 'error').mockImplementation(jest.fn())
 
-describe.skip('LinksService', () => {
+describe('LinksService', () => {
   let blacklistFactory: BlacklistFactory
   let userFactory: UserFactory
   let eventTypeFactory: EventTypeFactory

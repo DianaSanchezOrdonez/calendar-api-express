@@ -3,11 +3,12 @@ import { EventType } from '@prisma/client'
 import { NotFound } from 'http-errors'
 import { clearDatabase, prisma } from '../prisma'
 import { EventTypeFactory } from '../utils/factories/events-types.factory'
+import { logger } from '../utils/logger'
 import { EventsTypesService } from './events-types.service'
 
-jest.spyOn(console, 'error').mockImplementation(jest.fn())
+jest.spyOn(logger, 'error').mockImplementation(jest.fn())
 
-describe.skip('EventsTypesService', () => {
+describe('EventsTypesService', () => {
   let eventTypeFactory: EventTypeFactory
 
   beforeAll(() => {

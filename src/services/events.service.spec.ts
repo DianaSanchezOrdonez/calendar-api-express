@@ -8,11 +8,12 @@ import { clearDatabase, prisma } from '../prisma'
 import { EventTypeFactory } from '../utils/factories/events-types.factory'
 import { EventFactory } from '../utils/factories/events.factory'
 import { UserFactory } from '../utils/factories/user.factory'
+import { logger } from '../utils/logger'
 import { EventsService } from './events.service'
 
-jest.spyOn(console, 'error').mockImplementation(jest.fn())
+jest.spyOn(logger, 'error').mockImplementation(jest.fn())
 
-describe.skip('EventService', () => {
+describe('EventService', () => {
   let eventFactory: EventFactory
   let eventTypeFactory: EventTypeFactory
   let userFactory: UserFactory

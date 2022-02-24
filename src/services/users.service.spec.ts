@@ -5,11 +5,12 @@ import { NotFound, UnprocessableEntity } from 'http-errors'
 import { CreateUserDto } from '../dtos/users/requests/create-user.dto'
 import { clearDatabase, prisma } from '../prisma'
 import { UserFactory } from '../utils/factories/user.factory'
+import { logger } from '../utils/logger'
 import { UsersService } from './users.service'
 
-jest.spyOn(console, 'error').mockImplementation(jest.fn())
+jest.spyOn(logger, 'error').mockImplementation(jest.fn())
 
-describe.skip('UserService', () => {
+describe('UserService', () => {
   let userFactory: UserFactory
 
   beforeAll(() => {
