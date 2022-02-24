@@ -1,13 +1,13 @@
 import faker from '@faker-js/faker'
-import { Blacklist, EventType, User, Invitee } from '@prisma/client'
+import { EventType, User, Invitee, Blacklist } from '@prisma/client'
 import { plainToClass } from 'class-transformer'
 import { NotFound, UnprocessableEntity } from 'http-errors'
 import { EncodeDataDto } from '../dtos/links/requests/endode-data.dto'
 import { HashDataDto } from '../dtos/links/requests/hash-data.dto'
 import { clearDatabase, prisma } from '../prisma'
+import { BlacklistFactory } from '../utils/factories/blacklists.factory'
 import { EventTypeFactory } from '../utils/factories/events-types.factory'
 import { InviteeFactory } from '../utils/factories/invitee.factory'
-import { BlacklistFactory } from '../utils/factories/links.factory'
 import { UserFactory } from '../utils/factories/user.factory'
 import { logger } from '../utils/logger'
 import { LinksService } from './links.service'
@@ -15,16 +15,16 @@ import { LinksService } from './links.service'
 jest.spyOn(logger, 'error').mockImplementation(jest.fn())
 
 describe('LinksService', () => {
-  let blacklistFactory: BlacklistFactory
   let userFactory: UserFactory
   let eventTypeFactory: EventTypeFactory
   let inviteeFactory: InviteeFactory
+  let blacklistFactory: BlacklistFactory
 
   beforeAll(() => {
-    blacklistFactory = new BlacklistFactory(prisma)
     userFactory = new UserFactory(prisma)
     eventTypeFactory = new EventTypeFactory(prisma)
     inviteeFactory = new InviteeFactory(prisma)
+    blacklistFactory = new BlacklistFactory(prisma)
   })
 
   beforeEach(() => {
@@ -99,15 +99,9 @@ describe('LinksService', () => {
 
   describe('decodeEventData', () => {
     let blacklist: Blacklist
-    let user: User
-    let eventType: EventType
-    let invitee: Invitee
 
     beforeAll(async () => {
       blacklist = await blacklistFactory.make()
-      user = await userFactory.make()
-      eventType = await eventTypeFactory.make()
-      invitee = await inviteeFactory.make()
     })
 
     it('should throw an error if the hash exists into blacklist', async () => {

@@ -63,11 +63,6 @@ export class LinksService {
 
     if (data) {
       try {
-        await prisma.blacklist.create({
-          data: {
-            hash: input.hash,
-          },
-        })
         const parseData = JSON.parse(data)
 
         return plainToClass(DecodeDataResponse, parseData)

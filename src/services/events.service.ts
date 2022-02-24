@@ -1,5 +1,5 @@
 import { addMinutes, addMonths } from 'date-fns'
-import { UnprocessableEntity, BadRequest } from 'http-errors'
+import { UnprocessableEntity, BadRequest, NotFound } from 'http-errors'
 import { logger } from '../utils/logger'
 import { oAuth2Client } from '../utils/google-oauth'
 import { UsersService } from './users.service'
@@ -12,6 +12,8 @@ import { GoogleService } from './google.service'
 import { CreateEventDto } from '../dtos/events/requests/create-event.dto'
 import { EventIsertedDto } from '../dtos/events/responses/event-inserted.dto'
 import { plainToClass } from 'class-transformer'
+import { LinksService } from './links.service'
+import { HashDataDto } from '../dtos/links/requests/hash-data.dto'
 
 export class EventsService {
   static async getListUserEvents(
@@ -79,24 +81,23 @@ export class EventsService {
   }
 
   static async insertEvent(input: InsertNewEventDto): Promise<EventIsertedDto> {
-    const { eventName, timeZone, startDatetime, inviterEmail, inviteeEmail } =
-      input
+    const { candidateEmail, claimerEmail, eventName } =
+      await LinksService.decodeEventData({ hash: input.hash } as HashDataDto)
 
-    const user = await UsersService.findOne({ email: inviterEmail })
-
+    const user = await UsersService.findOne({ email: claimerEmail })
     const eventType = await EventsTypesService.findOne({ name: eventName })
 
     oAuth2Client.setCredentials({
       refresh_token: user.refreshToken,
     })
 
-    const eventStartTime = new Date(startDatetime)
+    const eventStartTime = new Date(input.startDatetime)
     const endDatetime = addMinutes(eventStartTime, eventType.eventDuration)
 
     const { data } = await GoogleService.getBusySlots({
       eventStartTime,
       eventEndTime: endDatetime,
-      timeZone,
+      timeZone: input.timeZone,
     })
 
     if (data.calendars.primary.busy.length === 0) {
@@ -104,9 +105,15 @@ export class EventsService {
         summary: eventName,
         startDatetime: eventStartTime,
         endDatetime,
-        timeZone,
-        inviteeEmail,
+        timeZone: input.timeZone,
+        inviteeEmail: candidateEmail,
         colorId: eventType.eventColor,
+      })
+
+      await prisma.blacklist.create({
+        data: {
+          hash: input.hash,
+        },
       })
 
       return this.create({
@@ -114,8 +121,8 @@ export class EventsService {
         eventTypeUUID: eventType.uuid,
         startDatetime: eventStartTime,
         endDatetime,
-        timeZone,
-        inviteeEmail,
+        timeZone: input.timeZone,
+        inviteeEmail: candidateEmail,
         userUUID: user.uuid,
       })
     } else {

@@ -1,27 +1,32 @@
-import { EventType, User } from '.prisma/client'
+import { Blacklist, EventType, Invitee, User } from '.prisma/client'
 import faker from '@faker-js/faker'
 import { plainToClass } from 'class-transformer'
-import { NotFound } from 'http-errors'
+import { NotFound, UnprocessableEntity } from 'http-errors'
 import { CreateEventDto } from '../dtos/events/requests/create-event.dto'
 import { InsertNewEventDto } from '../dtos/events/requests/insert-new-event.dto'
+import { EncodeDataDto } from '../dtos/links/requests/endode-data.dto'
 import { clearDatabase, prisma } from '../prisma'
+import { BlacklistFactory } from '../utils/factories/blacklists.factory'
 import { EventTypeFactory } from '../utils/factories/events-types.factory'
-import { EventFactory } from '../utils/factories/events.factory'
+import { InviteeFactory } from '../utils/factories/invitee.factory'
 import { UserFactory } from '../utils/factories/user.factory'
 import { logger } from '../utils/logger'
 import { EventsService } from './events.service'
+import { LinksService } from './links.service'
 
 jest.spyOn(logger, 'error').mockImplementation(jest.fn())
 
 describe('EventService', () => {
-  let eventFactory: EventFactory
+  let inviteeFactory: InviteeFactory
   let eventTypeFactory: EventTypeFactory
   let userFactory: UserFactory
+  let blacklistFactory: BlacklistFactory
 
   beforeAll(() => {
-    eventFactory = new EventFactory(prisma)
+    inviteeFactory = new InviteeFactory(prisma)
     eventTypeFactory = new EventTypeFactory(prisma)
     userFactory = new UserFactory(prisma)
+    blacklistFactory = new BlacklistFactory(prisma)
   })
 
   beforeEach(() => {
@@ -60,41 +65,25 @@ describe('EventService', () => {
   describe('insertEvent', () => {
     let eventType: EventType
     let user: User
+    let blacklist: Blacklist
+    let invitee: Invitee
 
     beforeAll(async () => {
       eventType = await eventTypeFactory.make()
       user = await userFactory.make()
+      blacklist = await blacklistFactory.make()
+      invitee = await inviteeFactory.make()
     })
 
-    it('should throw an error if the user does not exist', async () => {
+    it('should throw an error if the hash exists into blacklist', async () => {
       const data = plainToClass(InsertNewEventDto, {
-        startDatetime: faker.datatype.datetime(),
-        endDatetime: faker.datatype.datetime(),
+        hash: blacklist.hash,
         timeZone: faker.address.timeZone(),
-        inviteeEmail: faker.internet.email(),
-        meetingLink: faker.internet.url(),
-        eventName: eventType.name,
-        inviterEmail: faker.internet.email(),
+        startDatetime: faker.datatype.datetime(),
       })
 
       await expect(EventsService.insertEvent(data)).rejects.toThrowError(
-        new NotFound('No User found'),
-      )
-    })
-
-    it('should throw an error if the event type does not exist', async () => {
-      const data = plainToClass(InsertNewEventDto, {
-        startDatetime: faker.datatype.datetime(),
-        endDatetime: faker.datatype.datetime(),
-        timeZone: faker.address.timeZone(),
-        inviteeEmail: faker.internet.email(),
-        meetingLink: faker.internet.url(),
-        eventName: faker.name.title(),
-        inviterEmail: user.email,
-      })
-
-      await expect(EventsService.insertEvent(data)).rejects.toThrowError(
-        new NotFound('No EventType found'),
+        new UnprocessableEntity('invalid hash'),
       )
     })
   })

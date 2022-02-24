@@ -307,6 +307,8 @@ components:
     CreateEvent:
       type: object
       properties:
+        hash:
+          type: string
         timeZone:
           type: string
         eventName:
