@@ -8,10 +8,6 @@ export class EncodeDataDto extends BaseDto {
 
   @IsNotEmpty()
   @IsString()
-  readonly inviteeUUID: string
-
-  @IsNotEmpty()
-  @IsString()
   readonly eventTypeUUID: string
 }
 

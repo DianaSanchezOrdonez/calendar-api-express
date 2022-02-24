@@ -14,17 +14,15 @@ const CRYPTO_SECRET = process.env.CRYPTO_KEY || 'crypto_secret'
 
 export class LinksService {
   static async encodeEventData(input: EncodeDataDto): Promise<string> {
-    const [user, eventType, invitee] = await Promise.all([
+    const [user, eventType] = await Promise.all([
       UsersService.findOne({ uuid: input.inviterUUID }),
       EventsTypesService.findOne({ uuid: input.eventTypeUUID }),
-      InviteesService.findOne({ uuid: input.inviteeUUID }),
     ])
 
     try {
       const hash = AES.encrypt(
         JSON.stringify({
-          candidateEmail: invitee.email,
-          claimerEmail: user.email,
+          inviteerEmail: user.email,
           eventName: eventType.name,
           duration: eventType.eventDuration,
         }),

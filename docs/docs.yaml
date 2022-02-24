@@ -190,7 +190,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: string   
         "404":
           description: Not Found
           content:
@@ -309,17 +309,13 @@ components:
       properties:
         hash:
           type: string
+        inviteeEmail:
+         type: string
         timeZone:
-          type: string
-        eventName:
           type: string
         startDatetime:
           type: string
           format: date-time
-        inviterEmail:
-          type: string
-        inviteeEmail:
-          type: string
     Event:
       type: object
       properties:
@@ -350,16 +346,12 @@ components:
       properties:
         inviterUUID:
           type: string
-        inviteeUUID:
-          type: string
         eventTypeUUID:
           type: string
     DecodeData:
       type: object
       properties:
-        candidateEmail:
-          type: string
-        claimerEmail:
+        inviteerEmail:
           type: string
         eventName:
           type: string

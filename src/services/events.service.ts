@@ -1,5 +1,5 @@
 import { addMinutes, addMonths } from 'date-fns'
-import { UnprocessableEntity, BadRequest, NotFound } from 'http-errors'
+import { UnprocessableEntity, BadRequest } from 'http-errors'
 import { logger } from '../utils/logger'
 import { oAuth2Client } from '../utils/google-oauth'
 import { UsersService } from './users.service'
@@ -81,10 +81,11 @@ export class EventsService {
   }
 
   static async insertEvent(input: InsertNewEventDto): Promise<EventIsertedDto> {
-    const { candidateEmail, claimerEmail, eventName } =
-      await LinksService.decodeEventData({ hash: input.hash } as HashDataDto)
+    const { inviteerEmail, eventName } = await LinksService.decodeEventData({
+      hash: input.hash,
+    } as HashDataDto)
 
-    const user = await UsersService.findOne({ email: claimerEmail })
+    const user = await UsersService.findOne({ email: inviteerEmail })
     const eventType = await EventsTypesService.findOne({ name: eventName })
 
     oAuth2Client.setCredentials({
@@ -106,7 +107,7 @@ export class EventsService {
         startDatetime: eventStartTime,
         endDatetime,
         timeZone: input.timeZone,
-        inviteeEmail: candidateEmail,
+        inviteeEmail: input.inviteeEmail,
         colorId: eventType.eventColor,
       })
 
@@ -122,7 +123,7 @@ export class EventsService {
         startDatetime: eventStartTime,
         endDatetime,
         timeZone: input.timeZone,
-        inviteeEmail: candidateEmail,
+        inviteeEmail: input.inviteeEmail,
         userUUID: user.uuid,
       })
     } else {
