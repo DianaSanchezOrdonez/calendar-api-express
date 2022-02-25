@@ -1,4 +1,4 @@
-import { IsDateString, IsEmail, IsNotEmpty, IsString } from 'class-validator'
+import { IsDateString, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 import { BaseDto } from '../../base.dto'
 
 export class InsertNewEventDto extends BaseDto {
@@ -6,10 +6,10 @@ export class InsertNewEventDto extends BaseDto {
   @IsString()
   readonly hash: string
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @IsEmail()
-  readonly inviteeEmail: string
+  readonly inviteeEmail?: string
 
   @IsNotEmpty()
   @IsString()

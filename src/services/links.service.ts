@@ -1,3 +1,4 @@
+import { Invitee } from '.prisma/client'
 import { plainToClass } from 'class-transformer'
 import { AES, enc } from 'crypto-js'
 import { UnprocessableEntity } from 'http-errors'
@@ -19,12 +20,17 @@ export class LinksService {
       EventsTypesService.findOne({ uuid: input.eventTypeUUID }),
     ])
 
+    const invitee =
+      input.inviteeUUID &&
+      (await InviteesService.findOne({ uuid: input.inviteeUUID }))
+
     try {
       const hash = AES.encrypt(
         JSON.stringify({
           inviteerEmail: user.email,
           eventName: eventType.name,
           duration: eventType.eventDuration,
+          ...(invitee && { inviteeEmail: invitee.email }),
         }),
         CRYPTO_SECRET,
       ).toString()

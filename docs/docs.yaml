@@ -306,6 +306,10 @@ components:
                             format: date-time
     CreateEvent:
       type: object
+      required:
+      - "hash"
+      - "timeZone"
+      - "startDatetime"
       properties:
         hash:
           type: string
@@ -343,15 +347,26 @@ components:
           type: string
     EncodeData:
       type: object
+      required:
+      - "inviterUUID"
+      - "eventTypeUUID"
       properties:
         inviterUUID:
+          type: string
+        inviteeUUID:
           type: string
         eventTypeUUID:
           type: string
     DecodeData:
       type: object
+      required:
+      - "inviteerEmail"
+      - "eventName"
+      - "duration"
       properties:
         inviteerEmail:
+          type: string
+        inviteeEmail:
           type: string
         eventName:
           type: string

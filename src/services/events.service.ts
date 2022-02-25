@@ -14,6 +14,8 @@ import { EventIsertedDto } from '../dtos/events/responses/event-inserted.dto'
 import { plainToClass } from 'class-transformer'
 import { LinksService } from './links.service'
 import { HashDataDto } from '../dtos/links/requests/hash-data.dto'
+import { InviteesService } from './invitees.service'
+import { Invitee } from '.prisma/client'
 
 export class EventsService {
   static async getListUserEvents(
@@ -81,12 +83,28 @@ export class EventsService {
   }
 
   static async insertEvent(input: InsertNewEventDto): Promise<EventIsertedDto> {
-    const { inviteerEmail, eventName } = await LinksService.decodeEventData({
-      hash: input.hash,
-    } as HashDataDto)
+    const { inviteerEmail, eventName, inviteeEmail } =
+      await LinksService.decodeEventData({
+        hash: input.hash,
+      } as HashDataDto)
 
-    const user = await UsersService.findOne({ email: inviteerEmail })
-    const eventType = await EventsTypesService.findOne({ name: eventName })
+    const [user, eventType] = await Promise.all([
+      UsersService.findOne({ email: inviteerEmail }),
+      EventsTypesService.findOne({ name: eventName }),
+    ])
+
+    let invitee: Invitee
+    if (input.inviteeEmail) {
+      invitee = await InviteesService.findOne({
+        email: input.inviteeEmail,
+      })
+    } else if (inviteeEmail) {
+      invitee = await InviteesService.findOne({
+        email: inviteeEmail,
+      })
+    } else {
+      throw new BadRequest('The inviteeEmail it is not provide')
+    }
 
     oAuth2Client.setCredentials({
       refresh_token: user.refreshToken,
@@ -107,7 +125,7 @@ export class EventsService {
         startDatetime: eventStartTime,
         endDatetime,
         timeZone: input.timeZone,
-        inviteeEmail: input.inviteeEmail,
+        inviteeEmail: invitee.email,
         colorId: eventType.eventColor,
       })
 
@@ -123,7 +141,7 @@ export class EventsService {
         startDatetime: eventStartTime,
         endDatetime,
         timeZone: input.timeZone,
-        inviteeEmail: input.inviteeEmail,
+        inviteeEmail: invitee.email,
         userUUID: user.uuid,
       })
     } else {
