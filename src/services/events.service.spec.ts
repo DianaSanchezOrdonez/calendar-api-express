@@ -1,7 +1,7 @@
 import { Blacklist, EventType, Invitee, User } from '.prisma/client'
 import faker from '@faker-js/faker'
 import { plainToClass } from 'class-transformer'
-import { NotFound, UnprocessableEntity } from 'http-errors'
+import { BadRequest, UnprocessableEntity } from 'http-errors'
 import { CreateEventDto } from '../dtos/events/requests/create-event.dto'
 import { InsertNewEventDto } from '../dtos/events/requests/insert-new-event.dto'
 import { EncodeDataDto } from '../dtos/links/requests/endode-data.dto'
@@ -84,6 +84,25 @@ describe('EventService', () => {
 
       await expect(EventsService.insertEvent(data)).rejects.toThrowError(
         new UnprocessableEntity('invalid hash'),
+      )
+    })
+
+    it('should throw an error if the inviteeEmail not exist', async () => {
+      const url = await LinksService.encodeEventData(
+        plainToClass(EncodeDataDto, {
+          inviterUUID: user.uuid,
+          eventTypeUUID: eventType.uuid,
+        }),
+      )
+      const hash = url.split('hash=')[1]
+      const data = plainToClass(InsertNewEventDto, {
+        hash,
+        timeZone: faker.address.timeZone(),
+        startDatetime: faker.datatype.datetime(),
+      })
+
+      await expect(EventsService.insertEvent(data)).rejects.toThrowError(
+        new BadRequest('The inviteeEmail it is not provide'),
       )
     })
   })

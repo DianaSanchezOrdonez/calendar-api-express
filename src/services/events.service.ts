@@ -14,8 +14,6 @@ import { EventIsertedDto } from '../dtos/events/responses/event-inserted.dto'
 import { plainToClass } from 'class-transformer'
 import { LinksService } from './links.service'
 import { HashDataDto } from '../dtos/links/requests/hash-data.dto'
-import { InviteesService } from './invitees.service'
-import { Invitee } from '.prisma/client'
 
 export class EventsService {
   static async getListUserEvents(
@@ -83,6 +81,7 @@ export class EventsService {
   }
 
   static async insertEvent(input: InsertNewEventDto): Promise<EventIsertedDto> {
+    // console.log('input', input)
     const { inviteerEmail, eventName, inviteeEmail } =
       await LinksService.decodeEventData({
         hash: input.hash,
@@ -93,17 +92,23 @@ export class EventsService {
       EventsTypesService.findOne({ name: eventName }),
     ])
 
-    let invitee: Invitee
-    if (input.inviteeEmail) {
-      invitee = await InviteesService.findOne({
-        email: input.inviteeEmail,
-      })
-    } else if (inviteeEmail) {
-      invitee = await InviteesService.findOne({
-        email: inviteeEmail,
-      })
-    } else {
-      throw new BadRequest('The inviteeEmail it is not provide')
+    // let invitee: Invitee
+    // if (input.inviteeEmail) {
+    //   invitee = await InviteesService.findOne({
+    //     email: input.inviteeEmail,
+    //   })
+    // }
+    // if (inviteeEmail) {
+    //   invitee = await InviteesService.findOne({
+    //     email: inviteeEmail,
+    //   })
+    // } else {
+    //   throw new BadRequest('The inviteeEmail it is not provide')
+    // }
+    if (!input.inviteeEmail) {
+      if (!inviteeEmail) {
+        throw new BadRequest('The inviteeEmail it is not provide')
+      }
     }
 
     oAuth2Client.setCredentials({
@@ -125,7 +130,7 @@ export class EventsService {
         startDatetime: eventStartTime,
         endDatetime,
         timeZone: input.timeZone,
-        inviteeEmail: invitee.email,
+        inviteeEmail: inviteeEmail ?? input.inviteeEmail ?? '',
         colorId: eventType.eventColor,
       })
 
@@ -141,7 +146,7 @@ export class EventsService {
         startDatetime: eventStartTime,
         endDatetime,
         timeZone: input.timeZone,
-        inviteeEmail: invitee.email,
+        inviteeEmail: inviteeEmail ?? input.inviteeEmail ?? '',
         userUUID: user.uuid,
       })
     } else {

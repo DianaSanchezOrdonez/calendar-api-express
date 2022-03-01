@@ -1,4 +1,3 @@
-import { Invitee } from '.prisma/client'
 import { plainToClass } from 'class-transformer'
 import { AES, enc } from 'crypto-js'
 import { UnprocessableEntity } from 'http-errors'
@@ -45,6 +44,7 @@ export class LinksService {
   static async decodeEventData(
     input: HashDataDto,
   ): Promise<DecodeDataResponse> {
+    // console.log('input hash', input.hash)
     const hashFound = await prisma.blacklist.findUnique({
       where: {
         hash: input.hash,
