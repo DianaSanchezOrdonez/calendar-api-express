@@ -9,6 +9,7 @@ export const encodeEventData = async (
   res: Response,
 ): Promise<void> => {
   const dto = plainToClass(EncodeDataDto, req.body)
+  console.log('dto controller', dto)
   await dto.isValid()
 
   const result = await LinksService.encodeEventData(dto)
@@ -21,6 +22,7 @@ export const decodeEventData = async (
   res: Response,
 ): Promise<void> => {
   const dto = plainToClass(HashDataDto, req.body)
+  console.log("decode controller", req.body)
   await dto.isValid()
 
   const result = await LinksService.decodeEventData(dto)

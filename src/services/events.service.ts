@@ -81,7 +81,7 @@ export class EventsService {
   }
 
   static async insertEvent(input: InsertNewEventDto): Promise<EventIsertedDto> {
-    // console.log('input', input)
+    console.log('input', input)
     const { inviteerEmail, eventName, inviteeEmail } =
       await LinksService.decodeEventData({
         hash: input.hash,
