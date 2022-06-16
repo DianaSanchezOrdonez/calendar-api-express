@@ -95,10 +95,50 @@ export class GoogleService {
         },
       })
 
+      const data = await calendar.events.list({
+        calendarId: 'primary',
+        // maxResults: 10,
+      })
+      console.log('\n syncToken: ', data)
+
+      // query a heimdall con la repuesta ??? porque ya no hay webhooks 🤔
+      console.log('\n NEW EVENT GOOGLE 📷 ', newEvent)
       return plainToClass(EventCreatedDto, newEvent)
     } catch (e: any) {
       logger.error(e.message)
       throw new UnprocessableEntity(e.message)
     }
+  }
+
+  // https://developers.google.com/calendar/api/v3/reference/events/watch
+  static async watchEvent() {
+    console.log('testing...')
+    const result = await calendar.events.watch({
+      calendarId: 'primary',
+      requestBody: {
+        // expiration: '1655403365034',
+        // id: 'AIzaSyApr8WB_4AqQjZXGmPXsHTNaLcCeIDUGJs',
+        id: v4(),
+        payload: true,
+        type: 'webhook',
+        address:
+          'https://ae17-2800-200-f008-bb49-6141-2afe-5cac-ff76.ngrok.io/webhooks/google/webhook',
+      },
+    })
+
+    console.log('\n WATCH RESULT 👁 ', result)
+    return result
+  }
+
+  static async stopWatchEvent() {
+    console.log('testing...')
+    const result = await calendar.channels.stop({
+      requestBody: {
+        id: 'testing',
+      },
+    })
+
+    console.log('\n WATCH RESULT 👁 ', result)
+    return result
   }
 }

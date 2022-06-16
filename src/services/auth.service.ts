@@ -16,7 +16,7 @@ export class AuthService {
   static async signUp(input: AccessCodeDto): Promise<UserCreatedDto> {
     try {
       const { tokens } = await oAuth2Client.getToken(input.code)
-
+      console.log('\n tokens', tokens)
       if (
         typeof tokens.id_token !== 'string' ||
         typeof tokens.refresh_token !== 'string'

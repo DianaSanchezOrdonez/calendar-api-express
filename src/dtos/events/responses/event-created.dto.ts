@@ -5,6 +5,11 @@ export class DateAndTimeZoneDto {
   readonly timeZone: string
 }
 
+export class ActorDto {
+  readonly email: string
+  readonly self: boolean
+}
+
 @Exclude()
 export class EventCreatedDataDto {
   @Expose()
@@ -17,6 +22,10 @@ export class EventCreatedDataDto {
   readonly end: DateAndTimeZoneDto
   @Expose()
   readonly hangoutLink: string
+  @Expose()
+  readonly creator: ActorDto
+  @Expose()
+  readonly organizer: ActorDto
 }
 
 @Exclude()

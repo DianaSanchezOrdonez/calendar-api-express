@@ -1,10 +1,4 @@
-import express, {
-  json,
-  Application,
-  NextFunction,
-  Request,
-  Response,
-} from 'express'
+import express, { Application, NextFunction, Request, Response } from 'express'
 import cors from 'cors'
 import { HttpError } from 'http-errors'
 import swaggerUi from 'swagger-ui-express'
@@ -19,7 +13,8 @@ const ENVIROMENT = process.env.NODE_ENV || 'development'
 
 // Middleware
 app.use(cors())
-app.use(json())
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 function errorHandler(
   err: HttpError,

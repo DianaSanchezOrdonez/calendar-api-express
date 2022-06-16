@@ -6,9 +6,12 @@ export const googleConfig = {
   redirect: process.env.REDIRECT_URL,
   scope: [
     'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/calendar.readonly',
     'https://www.googleapis.com/auth/calendar.events',
+    'https://www.googleapis.com/auth/calendar.events.readonly'
   ],
 }
+
 
 export const oAuth2Client = new google.auth.OAuth2({
   clientId: googleConfig.clientId,

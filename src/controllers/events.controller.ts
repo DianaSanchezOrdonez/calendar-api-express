@@ -27,3 +27,21 @@ export const addNewEvent = async (
 
   res.status(201).json(result)
 }
+
+export const watchEvent = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const result = await EventsService.watchGoogleEvent()
+
+  res.status(201).json(result)
+}
+
+export const stopWatchEvent = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const result = await EventsService.stopWatcherEvent()
+
+  res.status(201).json(result)
+}
